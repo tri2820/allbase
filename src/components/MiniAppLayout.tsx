@@ -7,11 +7,19 @@ export default function MiniAppLayout(props: {
 }) {
   return (
     <div class="flex items-start h-full">
-      <div class="w-80 h-full border-r border-neutral-900 ">
+      <div
+        class="w-80 h-full border-r border-neutral-900 overflow-y-auto overflow-x-hidden"
+        data-simplebar
+      >
         {props.sidebar}
       </div>
 
-      <div class="flex flex-col h-full flex-1 ">{props.children}</div>
+      <div
+        class="flex flex-col h-full flex-1 overflow-y-auto overflow-x-hidden"
+        data-simplebar
+      >
+        {props.children}
+      </div>
     </div>
   );
 }

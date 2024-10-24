@@ -58,7 +58,7 @@ body {
   display: inline-block;
   padding: 8px 8px;
   outline: none;
-  @apply text-neutral-500 m-2 bg-white/5 rounded-lg border border-neutral-900 cursor-pointer;
+  @apply text-neutral-500 m-2 bg-white/5 rounded-lg border border-neutral-900 cursor-pointer shadow-lg ;
 }
 .tabs__trigger[data-highlighted]{
   @apply bg-white/10;
@@ -90,4 +90,20 @@ body {
 
 .icon {
   @apply text-neutral-500 p-2 bg-neutral-950 rounded-lg border border-neutral-900;
+}
+
+.simplebar-scrollbar::before {
+  /* @apply bg-neutral-800 */
+  background-color: #262626!important;
+  opacity: 0.4!important;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }

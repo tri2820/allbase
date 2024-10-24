@@ -71,16 +71,16 @@ function SearchButton() {
 
 export default function AppBar() {
   return (
-    <div class="bg-black flex flex-col h-screen overflow-hidden items-center py-4">
+    <div class="bg-black flex flex-col h-screen overflow-y-auto overflow-x-hidden items-center py-4 hide-scrollbar">
       <Tabs.List class="tabs__list">
-        <Tabs.Trigger class="tabs__trigger " value="chat" as="div">
-          <VsCommentDiscussion class="w-6 h-6" />
+        <Tabs.Trigger class="tabs__trigger" value="add" as="div">
+          <VsAdd class="w-6 h-6 " />
         </Tabs.Trigger>
         <Tabs.Trigger class="tabs__trigger" value="profile" as="div">
           <VsAccount class="w-6 h-6 " />
         </Tabs.Trigger>
-        <Tabs.Trigger class="tabs__trigger" value="add" as="div">
-          <VsAdd class="w-6 h-6 " />
+        <Tabs.Trigger class="tabs__trigger " value="chat" as="div">
+          <VsCommentDiscussion class="w-6 h-6" />
         </Tabs.Trigger>
         <Tabs.Indicator class="tabs__indicator" />
       </Tabs.List>
