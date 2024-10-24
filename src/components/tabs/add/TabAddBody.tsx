@@ -31,16 +31,14 @@ const views: Record<string, (props: any) => JSX.Element> = {
 
         <div class="h-[1px] w-full bg-neutral-900 my-4" />
 
-        <div class="flex flex-start space-x-2">
+        <div class="flex flex-start space-x-2 ">
           <div
-            class="prose prose-invert text-white max-w-none flex-1"
+            class="prose prose-invert text-white max-w-none flex-1 "
             innerHTML={html()}
           />
 
-          <div class="flex-none w-40 border-l border-neutral-900 p-2">
-            <div class="uppercase tracking-tight text-sm py-4 px-6">
-              Categories
-            </div>
+          <div class="flex-none w-40 border-l border-neutral-900 p-2 ">
+            <div class="uppercase tracking-tight text-sm py-4">Categories</div>
 
             <div class="flex flex-wrap gap-2">
               {props.miniapp.categories.map((e) => (
@@ -60,7 +58,7 @@ export default function TabAddBody() {
   const miniapp = () => miniapps.find((e) => e.id == selectedMiniappId());
 
   return (
-    <div class="p-6">
+    <div class="p-6  flex-1">
       <Dynamic
         component={views[miniapp() ? "true" : "false"]}
         miniapp={miniapp()}

@@ -15,7 +15,7 @@ export default function MiniAppLayout(props: {
       </div>
 
       <div
-        class="flex flex-col h-full flex-1 overflow-y-auto overflow-x-hidden"
+        class="h-full flex-1 overflow-y-auto overflow-x-hidden"
         data-simplebar
       >
         {props.children}
