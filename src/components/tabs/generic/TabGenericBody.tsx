@@ -1,8 +1,5 @@
-import { onMount } from "solid-js";
-import { install, installationOf, miniappMetas } from "~/components/miniapps";
-import * as esbuild from "esbuild-wasm";
-import { fetchPlugin } from "~/lib/bundler/plugins/fetch-plugin";
-import { unpkgPathPlugin } from "~/lib/bundler/plugins/unpkg-path-plugin";
+import { onCleanup, onMount } from "solid-js";
+import { installationOf, miniappMetas } from "~/components/miniapps";
 import esBundle from "~/lib/bundler";
 
 export default function TabGenericBody(props: { miniapp_id: string }) {
@@ -15,8 +12,16 @@ export default function TabGenericBody(props: { miniapp_id: string }) {
     return <div>Not found</div>;
   }
 
+  let shadow: HTMLDivElement;
   onMount(async () => {
-    const js = `console.log(globalThis, globalThis.Math)`;
+    installation.sandbox.shadowRoot = shadow.attachShadow({ mode: "closed" });
+    const js = `
+      (() => {
+        const div = document.createElement("div");
+        div.textContent = "This is the generic tab's shadow root";
+        globalThis.shadowRoot.appendChild(div);
+      })()
+    `;
     const { error, output } = await esBundle(js);
     if (error) {
       console.log(error);
@@ -31,9 +36,9 @@ export default function TabGenericBody(props: { miniapp_id: string }) {
     }
   });
 
-  return (
-    <div>
-      {JSON.stringify(miniappMeta)} {JSON.stringify(installation)}
-    </div>
-  );
+  onCleanup(() => {
+    console.log("me destroyed!");
+  });
+
+  return <div ref={shadow!} />;
 }
