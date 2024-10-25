@@ -9,7 +9,7 @@ declare global {
 }
 
 export type SandboxOptions = {
-  name: string;
+  id: string;
   globals: {};
   window: Window;
 };
@@ -18,13 +18,7 @@ export class Sandbox {
   private membrane = new Membrane();
   private compartment: Compartment;
 
-  static lockdown() {
-    if (window.sesLockedDown) return;
-    window.sesLockedDown = true;
-    lockdown({
-      errorTaming: 'unsafe-debug', consoleTaming: 'unsafe', overrideTaming: 'severe',
-    });
-  }
+  
 
   constructor(options: SandboxOptions) {
     const safeWindow = this.membrane.wrap(options.window);
@@ -33,7 +27,7 @@ export class Sandbox {
     this.membrane
 
     this.compartment = new Compartment({
-      name: options.name,
+      id: options.id,
       globals: {
         ...safeWindow,
         window: safeWindow,

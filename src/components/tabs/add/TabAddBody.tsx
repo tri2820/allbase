@@ -1,19 +1,19 @@
+import { marked } from "marked";
+import { JSX, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import {
-  actionButton,
-  install,
-  MiniApp,
-  miniapps,
+  installationOf,
+  MiniAppMeta,
+  miniappMetas,
+  mkButton,
   selectedMiniappId,
 } from "./miniapps";
-import { JSX, Show } from "solid-js";
-import { marked } from "marked";
 
 const views: Record<string, (props: any) => JSX.Element> = {
   false: () => (
     <div class="text-neutral-600">Select a miniapp to see it's details</div>
   ),
-  true: (props: { miniapp: MiniApp }) => {
+  true: (props: { miniapp: MiniAppMeta }) => {
     const html = () => marked.parse(props.miniapp.readme) as string;
     const icon = () => <props.miniapp.icon class="w-10 h-10 " />;
     return (
@@ -25,17 +25,11 @@ const views: Record<string, (props: any) => JSX.Element> = {
             <div class="text-neutral-400">{props.miniapp.description}</div>
             <div class="flex items-center space-x-2 py-2">
               <Show
-                fallback={actionButton["install"]({
-                  miniapp: props.miniapp,
-                })}
-                when={props.miniapp.status == "installed"}
+                fallback={mkButton("install")(props.miniapp)}
+                when={installationOf(props.miniapp.id)}
               >
-                {actionButton["remove"]({
-                  miniapp: props.miniapp,
-                })}
-                {actionButton["disable"]({
-                  miniapp: props.miniapp,
-                })}
+                {mkButton("remove")(props.miniapp)}
+                {mkButton("disable")(props.miniapp)}
               </Show>
             </div>
           </div>
@@ -67,7 +61,7 @@ const views: Record<string, (props: any) => JSX.Element> = {
 };
 
 export default function TabAddBody() {
-  const miniapp = () => miniapps.find((e) => e.id == selectedMiniappId());
+  const miniapp = () => miniappMetas.find((e) => e.id == selectedMiniappId());
 
   return (
     <div class="p-6  flex-1">

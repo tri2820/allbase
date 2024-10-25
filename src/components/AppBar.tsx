@@ -3,14 +3,13 @@ import { Tabs } from "@kobalte/core/tabs";
 import {
   VsAccount,
   VsAdd,
-  VsCheck,
   VsCommentDiscussion,
   VsLoading,
   VsPassFilled,
   VsPulse,
 } from "solid-icons/vs";
 import { Show } from "solid-js";
-import { newTaskHint, setNewTaskHint, TaskManager } from "./TaskManager";
+import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
 
 export default function AppBar() {
   return (
@@ -32,9 +31,9 @@ export default function AppBar() {
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>
-          <DropdownMenu.Content class="dropdown-menu__content">
+          <DropdownMenu.Content class="dropdown-menu__content max-h-60 overflow-auto nice-scrollbar">
             <Show
-              when={TaskManager.sortedTasks().length > 0}
+              when={sortedTasks().length > 0}
               fallback={
                 <div class="p-2 px-4 ">
                   <span class="text-sm">No tasks running</span>
@@ -46,7 +45,7 @@ export default function AppBar() {
                   Activities
                 </div>
 
-                {TaskManager.sortedTasks().map((task) => (
+                {sortedTasks().map((task) => (
                   <div
                     class="p-2 px-4 flex items-center space-x-2  data-[completed=false]:animate-pulse max-w-sm overflow-hidden"
                     data-completed={task.completed ? true : false}

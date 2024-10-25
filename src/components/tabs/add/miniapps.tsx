@@ -6,9 +6,14 @@ import {
   VsProject,
 } from "solid-icons/vs";
 import { createSignal } from "solid-js";
-import { TaskManager } from "~/components/TaskManager";
+import {
+  addTask,
+  markComplete,
+  RunningTask,
+  RunningTaskData,
+} from "~/components/tasks";
 
-export type MiniApp = {
+export type MiniAppMeta = {
   id: string;
   name: string;
   description: string;
@@ -16,9 +21,17 @@ export type MiniApp = {
   categories: string[];
   author_name: string;
   icon: IconTypes | string;
-  status: "not_installed" | "installed" | "installed_but_disabled";
 };
-export const miniapps: MiniApp[] = [
+
+const [installations, setInstallations] = createSignal<Installation[]>([]);
+export type Installation = {
+  id: string;
+  // sandbox: Sandbox;
+  // build?
+  disabled: boolean;
+};
+
+export const miniappMetas: MiniAppMeta[] = [
   {
     id: "0000-0000-0000-0009",
     name: "Communication Hub",
@@ -54,7 +67,6 @@ The communication hub is a central location for all your conversations. It's the
     author_name: "AllBase",
     icon: VsCommentDiscussion,
     categories: ["Communication", "Collaboration"],
-    status: "installed",
   },
   {
     id: "0000-0000-0000-0002",
@@ -77,7 +89,6 @@ A simple test app for AllBase. Renders a Threejs cube.
     author_name: "AllBase",
     icon: VsArrowBoth,
     categories: ["Development", "Testing"],
-    status: "not_installed",
   },
 
   {
@@ -108,7 +119,6 @@ Plan and track projects with Kanban boards, Gantt charts, and real-time collabor
     author_name: "AllBase",
     icon: VsProject,
     categories: ["Productivity", "Project Management"],
-    status: "not_installed",
   },
   {
     id: "0000-0000-0000-0016",
@@ -136,7 +146,6 @@ A powerful note-taking tool with templates, rich text editing and real-time coll
     author_name: "AllBase",
     icon: VsEdit,
     categories: ["Productivity", "Note-taking"],
-    status: "not_installed",
   },
 ];
 
@@ -144,101 +153,89 @@ export const [selectedMiniappId, setSelectedMiniappId] = createSignal<
   string | undefined
 >(undefined);
 
-export const actionButton = {
-  install: (props: { miniapp: MiniApp }) => (
-    <button
-      class="button-sm"
-      onClick={(e) => {
-        e.stopPropagation();
-        install(props.miniapp);
-      }}
-    >
-      Install
-    </button>
-  ),
-  remove: (props: { miniapp: MiniApp }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        remove(props.miniapp);
-      }}
-      class="button-sm"
-    >
-      Remove
-    </button>
-  ),
-  enable: (props: { miniapp: MiniApp }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        enable(props.miniapp);
-      }}
-      class="button-sm"
-    >
-      Enable
-    </button>
-  ),
-  disable: (props: { miniapp: MiniApp }) => (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        disable(props.miniapp);
-      }}
-      class="button-sm"
-    >
-      Disable
-    </button>
-  ),
+export function taskify<T>(f: (props: T) => Promise<void>) {
+  return (mkTask: (props: T) => RunningTaskData) => {
+    return async (props: T) => {
+      const task = mkTask(props);
+      const id = addTask(task);
+      await f(props);
+      markComplete(id);
+    };
+  };
+}
+
+export const install = async (miniapp: MiniAppMeta) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const installation = {
+    id: miniapp.id,
+    disabled: false,
+  };
+  setInstallations([...installations(), installation]);
 };
 
-export const install = async (miniapp: MiniApp) => {
-  const id = TaskManager.addTask({
-    type: "install",
-    miniapp_id: miniapp.id,
-    description: `Install ${miniapp.name}`,
-  });
-
-  // Install
-
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  TaskManager.markComplete(id);
-};
-
-export const remove = async (miniapp: MiniApp) => {
-  const id = TaskManager.addTask({
-    type: "remove",
-    miniapp_id: miniapp.id,
-    description: `Remove ${miniapp.name}`,
-  });
-
+export const remove = async (miniapp: MiniAppMeta) => {
   // Remove
-
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  TaskManager.markComplete(id);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 };
 
-export const enable = async (miniapp: MiniApp) => {
-  const id = TaskManager.addTask({
-    type: "enable",
-    miniapp_id: miniapp.id,
-    description: `Enable ${miniapp.name}`,
-  });
-
-  // Enable
-
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  TaskManager.markComplete(id);
+export const enable = async (miniapp: MiniAppMeta) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 };
 
-export const disable = async (miniapp: MiniApp) => {
-  const id = TaskManager.addTask({
-    type: "disable",
-    miniapp_id: miniapp.id,
-    description: `Disable ${miniapp.name}`,
-  });
-
+export const disable = async (miniapp: MiniAppMeta) => {
   // Disable
-
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-  TaskManager.markComplete(id);
+  await new Promise((resolve) => setTimeout(resolve, 1000));
 };
+
+export const installationOf = (miniapp_id: string) =>
+  installations().find((installation) => installation.id == miniapp_id);
+
+export function mkButton(type: "install" | "remove" | "enable" | "disable") {
+  const { f, label, doingLabel } = {
+    install: {
+      f: install,
+      label: "Install",
+      doingLabel: "Installing...",
+    },
+    remove: {
+      f: remove,
+      label: "Remove",
+      doingLabel: "Removing...",
+    },
+    enable: {
+      f: enable,
+      label: "Enable",
+      doingLabel: "Enabling...",
+    },
+    disable: {
+      f: disable,
+      label: "Disable",
+      doingLabel: "Disabling...",
+    },
+  }[type];
+
+  const taskAction = taskify(f)((miniapp) => ({
+    type,
+    miniapp_id: miniapp.id,
+    description: `${label} ${miniapp.name}`,
+  }));
+
+  return (miniapp: MiniAppMeta) => {
+    const [doing, setDoing] = createSignal(false);
+
+    return (
+      <button
+        onClick={async (e) => {
+          e.stopPropagation();
+          setDoing(true);
+          await taskAction(miniapp);
+          setDoing(false);
+        }}
+        class="button-sm"
+        disabled={doing()}
+      >
+        {doing() ? doingLabel : label}
+      </button>
+    );
+  };
+}

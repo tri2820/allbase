@@ -1,7 +1,8 @@
-import { Dynamic, For } from "solid-js/web";
+import { For } from "solid-js/web";
 import {
-  actionButton,
-  miniapps,
+  installationOf,
+  miniappMetas,
+  mkButton,
   selectedMiniappId,
   setSelectedMiniappId,
 } from "./miniapps";
@@ -16,51 +17,89 @@ export default function TabAddSidebar() {
       </div>
 
       <div>
-        <For each={miniapps}>
-          {(m) => (
-            <div
-              onClick={() => {
-                if (selectedMiniappId() == m.id) {
-                  setSelectedMiniappId();
-                  return;
+        <For each={miniappMetas}>
+          {(m) => {
+            const btn = () => {
+              const installation = installationOf(m.id);
+              if (installation) {
+                if (installation.disabled) {
+                  return mkButton("enable");
                 }
-                setSelectedMiniappId(m.id);
-              }}
-              data-selected={selectedMiniappId() == m.id}
-              class="flex items-start cursor-pointer space-x-4 px-6 py-4 hover:bg-neutral-900 data-[selected=true]:bg-neutral-900"
-            >
-              <div class="icon flex-none">
-                <m.icon class="w-8 h-8 " />
-              </div>
-              <div class="flex-1 space-y-1">
-                <div class="font-bold line-clamp-1 leading-none">{m.name}</div>
-                <div class="text-neutral-400 line-clamp-1 leading-none ">
-                  {m.description}
+                return mkButton("remove");
+              }
+              return mkButton("install");
+            };
+
+            // const doingLabel = () => {
+            //   if (
+            //     tasks().some(
+            //       (t) =>
+            //         t.type == "install" && t.miniapp_id == m.id && !t.completed
+            //     )
+            //   ) {
+            //     return "Installing";
+            //   }
+
+            //   if (
+            //     tasks().some(
+            //       (t) =>
+            //         t.type == "remove" && t.miniapp_id == m.id && !t.completed
+            //     )
+            //   ) {
+            //     return "Removing";
+            //   }
+
+            //   if (
+            //     tasks().some(
+            //       (t) =>
+            //         t.type == "disable" && t.miniapp_id == m.id && !t.completed
+            //     )
+            //   ) {
+            //     return "Disabling";
+            //   }
+
+            //   if (
+            //     tasks().some(
+            //       (t) =>
+            //         t.type == "enable" && t.miniapp_id == m.id && !t.completed
+            //     )
+            //   ) {
+            //     return "Enabling";
+            //   }
+            // };
+
+            return (
+              <div
+                onClick={() => {
+                  if (selectedMiniappId() == m.id) {
+                    setSelectedMiniappId();
+                    return;
+                  }
+                  setSelectedMiniappId(m.id);
+                }}
+                data-selected={selectedMiniappId() == m.id}
+                class="flex items-start cursor-pointer space-x-4 px-6 py-4 hover:bg-neutral-900 data-[selected=true]:bg-neutral-900"
+              >
+                <div class="icon flex-none">
+                  <m.icon class="w-8 h-8 " />
                 </div>
-                <div class="flex items-center w-full ">
-                  <div class="flex-1 text-neutral-400 text-xs line-clamp-1 font-semibold leading-none ">
-                    {m.author_name}
+                <div class="flex-1 space-y-1">
+                  <div class="font-bold line-clamp-1 leading-none">
+                    {m.name}
                   </div>
-                  <Dynamic
-                    component={() => {
-                      const map: Record<
-                        typeof m.status,
-                        keyof typeof actionButton
-                      > = {
-                        not_installed: "install",
-                        installed: "remove",
-                        installed_but_disabled: "enable",
-                      };
-                      const label = map[m.status];
-                      return actionButton[label]({
-                        miniapp: m,
-                      });
-                    }}
-                  />
+                  <div class="text-neutral-400 line-clamp-1 leading-none ">
+                    {m.description}
+                  </div>
+                  <div class="flex items-center w-full ">
+                    <div class="flex-1 text-neutral-400 text-xs line-clamp-1 font-semibold leading-none ">
+                      {m.author_name}
+                    </div>
+                    {btn()(m)}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          }}
         </For>
       </div>
     </div>
