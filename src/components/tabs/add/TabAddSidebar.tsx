@@ -1,6 +1,6 @@
 import { Dynamic, For } from "solid-js/web";
 import {
-  actionLabel,
+  actionButton,
   miniapps,
   selectedMiniappId,
   setSelectedMiniappId,
@@ -17,33 +17,46 @@ export default function TabAddSidebar() {
 
       <div>
         <For each={miniapps}>
-          {(e) => (
+          {(m) => (
             <div
               onClick={() => {
-                if (selectedMiniappId() == e.id) {
+                if (selectedMiniappId() == m.id) {
                   setSelectedMiniappId();
                   return;
                 }
-                setSelectedMiniappId(e.id);
+                setSelectedMiniappId(m.id);
               }}
-              data-selected={selectedMiniappId() == e.id}
+              data-selected={selectedMiniappId() == m.id}
               class="flex items-start cursor-pointer space-x-4 px-6 py-4 hover:bg-neutral-900 data-[selected=true]:bg-neutral-900"
             >
               <div class="icon flex-none">
-                <e.icon class="w-8 h-8 " />
+                <m.icon class="w-8 h-8 " />
               </div>
               <div class="flex-1 space-y-1">
-                <div class="font-bold line-clamp-1 leading-none">{e.name}</div>
+                <div class="font-bold line-clamp-1 leading-none">{m.name}</div>
                 <div class="text-neutral-400 line-clamp-1 leading-none ">
-                  {e.description}
+                  {m.description}
                 </div>
                 <div class="flex items-center w-full ">
                   <div class="flex-1 text-neutral-400 text-xs line-clamp-1 font-semibold leading-none ">
-                    {e.author_name}
+                    {m.author_name}
                   </div>
-                  <button class="button-sm">
-                    <Dynamic component={actionLabel[e.status]} />
-                  </button>
+                  <Dynamic
+                    component={() => {
+                      const map: Record<
+                        typeof m.status,
+                        keyof typeof actionButton
+                      > = {
+                        not_installed: "install",
+                        installed: "remove",
+                        installed_but_disabled: "enable",
+                      };
+                      const label = map[m.status];
+                      return actionButton[label]({
+                        miniapp: m,
+                      });
+                    }}
+                  />
                 </div>
               </div>
             </div>

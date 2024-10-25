@@ -1,78 +1,78 @@
+import { DropdownMenu } from "@kobalte/core/dropdown-menu";
 import { Tabs } from "@kobalte/core/tabs";
-import { A, useLocation } from "@solidjs/router";
 import {
   VsAccount,
   VsAdd,
-  VsCode,
+  VsCheck,
   VsCommentDiscussion,
-  VsExtensions,
-  VsHome,
-  VsSearch,
+  VsLoading,
+  VsPassFilled,
+  VsPulse,
 } from "solid-icons/vs";
-// import { setSidebarClose } from "./Sidebar";
-import { createEffect, createSignal, untrack } from "solid-js";
-
-// import { textChannelId, textChannels, voiceChannelId } from "~/signals";
-
-// const [redirectTo, setRedirectTo] = createSignal<string>();
-// const t = textChannels()?.at(0)?.id;
-// const firstTextChannel = t ? `/text-channel/${t}` : undefined;
-// function DiscussionButton() {
-//   const loc = useLocation();
-//   const active = () =>
-//     loc.pathname.startsWith("/text-channel") ||
-//     loc.pathname.startsWith("/voice-channel");
-//   createEffect(() => {
-//     let _redirect_to = untrack(() => redirectTo());
-//     if (textChannelId()) _redirect_to = `/text-channel/${textChannelId()}`;
-//     if (voiceChannelId()) _redirect_to = `/voice-channel/${voiceChannelId()}`;
-//     setRedirectTo(_redirect_to);
-//   });
-
-//   return (
-//     <A
-//       href={redirectTo() ?? firstTextChannel ?? "/"}
-//       data-active={active()}
-//       class="text-hover p-3 data-[active=true]:border-l-4"
-//       onClick={() => {
-//         setSidebarClose(false);
-//       }}
-//     >
-//       <VsCommentDiscussion class="w-6 h-6" />
-//     </A>
-//   );
-// }
-
-function ExtensionsButton() {
-  const loc = useLocation();
-  return (
-    <A
-      href="/"
-      data-active={loc.pathname == "/"}
-      class="text-hover p-3 data-[active=true]:border-l-4"
-    >
-      <VsExtensions class="w-6 h-6" />
-    </A>
-  );
-}
-
-function SearchButton() {
-  const loc = useLocation();
-  return (
-    <A
-      href="/search"
-      data-active={loc.pathname == "/search"}
-      class="text-hover p-3 data-[active=true]:border-l-4"
-    >
-      <VsSearch class="w-6 h-6" />
-    </A>
-  );
-}
+import { Show } from "solid-js";
+import { newTaskHint, setNewTaskHint, TaskManager } from "./TaskManager";
 
 export default function AppBar() {
   return (
     <div class="bg-black flex flex-col h-screen overflow-y-auto overflow-x-hidden items-center py-4 hide-scrollbar">
       <Tabs.List class="tabs__list">
+        <DropdownMenu
+          onOpenChange={() => {
+            setNewTaskHint(false);
+          }}
+        >
+          <DropdownMenu.Trigger class="dropdown-menu__trigger relative">
+            <Show when={newTaskHint()}>
+              <span class="absolute z-[50] -right-2 -top-2 h-4 w-4 rounded-full bg-sky-400" />
+              <span class="absolute z-[50] blur -right-2 -top-2 h-4 w-4 rounded-full bg-sky-400 opacity-50 "></span>
+            </Show>
+
+            <DropdownMenu.Icon
+              class=" flex items-center justify-center"
+              as="div"
+            >
+              <VsPulse class="w-6 h-6" />
+            </DropdownMenu.Icon>
+          </DropdownMenu.Trigger>
+
+          <DropdownMenu.Portal>
+            <DropdownMenu.Content class="dropdown-menu__content">
+              <Show
+                when={TaskManager.sortedTasks().length > 0}
+                fallback={
+                  <div class="p-2 px-4 ">
+                    <span class="text-sm">No tasks running</span>
+                  </div>
+                }
+              >
+                <div class="max-h-52" data-simplebar>
+                  <div class="uppercase tracking-tight text-xs px-4 text-neutral-500">
+                    Activities
+                  </div>
+
+                  {TaskManager.sortedTasks().map((task) => (
+                    <div
+                      class="p-2 px-4 flex items-center space-x-2  data-[completed=false]:animate-pulse max-w-sm overflow-hidden"
+                      data-completed={task.completed ? true : false}
+                    >
+                      <div class="flex-none">
+                        <Show
+                          when={task.completed}
+                          fallback={<VsLoading class="w-4 h-4 animate-spin" />}
+                        >
+                          <VsPassFilled class="w-4 h-4" />
+                        </Show>
+                      </div>
+                      <div class="text-sm truncate">{task.description}</div>
+                    </div>
+                  ))}
+                </div>
+              </Show>
+              <DropdownMenu.Arrow />
+            </DropdownMenu.Content>
+          </DropdownMenu.Portal>
+        </DropdownMenu>
+
         <Tabs.Trigger class="tabs__trigger" value="add" as="div">
           <VsAdd class="w-6 h-6 " />
         </Tabs.Trigger>

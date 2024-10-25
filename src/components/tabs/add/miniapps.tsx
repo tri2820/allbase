@@ -6,6 +6,7 @@ import {
   VsProject,
 } from "solid-icons/vs";
 import { createSignal } from "solid-js";
+import { TaskManager } from "~/components/TaskManager";
 
 export type MiniApp = {
   id: string;
@@ -15,7 +16,6 @@ export type MiniApp = {
   categories: string[];
   author_name: string;
   icon: IconTypes | string;
-
   status: "not_installed" | "installed" | "installed_but_disabled";
 };
 export const miniapps: MiniApp[] = [
@@ -140,12 +140,105 @@ A powerful note-taking tool with templates, rich text editing and real-time coll
   },
 ];
 
-export const actionLabel = {
-  not_installed: () => "Install",
-  installed: () => "Remove",
-  installed_but_disabled: () => "Enabled",
-};
-
 export const [selectedMiniappId, setSelectedMiniappId] = createSignal<
   string | undefined
 >(undefined);
+
+export const actionButton = {
+  install: (props: { miniapp: MiniApp }) => (
+    <button
+      class="button-sm"
+      onClick={(e) => {
+        e.stopPropagation();
+        install(props.miniapp);
+      }}
+    >
+      Install
+    </button>
+  ),
+  remove: (props: { miniapp: MiniApp }) => (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        remove(props.miniapp);
+      }}
+      class="button-sm"
+    >
+      Remove
+    </button>
+  ),
+  enable: (props: { miniapp: MiniApp }) => (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        enable(props.miniapp);
+      }}
+      class="button-sm"
+    >
+      Enable
+    </button>
+  ),
+  disable: (props: { miniapp: MiniApp }) => (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        disable(props.miniapp);
+      }}
+      class="button-sm"
+    >
+      Disable
+    </button>
+  ),
+};
+
+export const install = async (miniapp: MiniApp) => {
+  const id = TaskManager.addTask({
+    type: "install",
+    miniapp_id: miniapp.id,
+    description: `Install ${miniapp.name}`,
+  });
+
+  // Install
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  TaskManager.markComplete(id);
+};
+
+export const remove = async (miniapp: MiniApp) => {
+  const id = TaskManager.addTask({
+    type: "remove",
+    miniapp_id: miniapp.id,
+    description: `Remove ${miniapp.name}`,
+  });
+
+  // Remove
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  TaskManager.markComplete(id);
+};
+
+export const enable = async (miniapp: MiniApp) => {
+  const id = TaskManager.addTask({
+    type: "enable",
+    miniapp_id: miniapp.id,
+    description: `Enable ${miniapp.name}`,
+  });
+
+  // Enable
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  TaskManager.markComplete(id);
+};
+
+export const disable = async (miniapp: MiniApp) => {
+  const id = TaskManager.addTask({
+    type: "disable",
+    miniapp_id: miniapp.id,
+    description: `Disable ${miniapp.name}`,
+  });
+
+  // Disable
+
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  TaskManager.markComplete(id);
+};

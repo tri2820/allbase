@@ -1,8 +1,8 @@
 import { JSX } from "solid-js";
 
-import AppBar from "./AppBar";
-import { bodyOverlay } from "~/global";
 import { Tabs } from "@kobalte/core/tabs";
+import { bodyOverlay } from "~/global";
+import AppBar from "./AppBar";
 
 export default function AppLayout(props: { children?: JSX.Element }) {
   return (

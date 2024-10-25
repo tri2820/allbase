@@ -1,5 +1,11 @@
 import { Dynamic } from "solid-js/web";
-import { MiniApp, miniapps, selectedMiniappId } from "./miniapps";
+import {
+  actionButton,
+  install,
+  MiniApp,
+  miniapps,
+  selectedMiniappId,
+} from "./miniapps";
 import { JSX, Show } from "solid-js";
 import { marked } from "marked";
 
@@ -19,11 +25,17 @@ const views: Record<string, (props: any) => JSX.Element> = {
             <div class="text-neutral-400">{props.miniapp.description}</div>
             <div class="flex items-center space-x-2 py-2">
               <Show
-                fallback={<button class="button-sm">Install</button>}
+                fallback={actionButton["install"]({
+                  miniapp: props.miniapp,
+                })}
                 when={props.miniapp.status == "installed"}
               >
-                <button class="button-sm">Disable</button>
-                <button class="button-sm">Remove</button>
+                {actionButton["remove"]({
+                  miniapp: props.miniapp,
+                })}
+                {actionButton["disable"]({
+                  miniapp: props.miniapp,
+                })}
               </Show>
             </div>
           </div>
