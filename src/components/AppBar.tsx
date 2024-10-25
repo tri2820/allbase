@@ -11,9 +11,61 @@ import {
   VsTerminalBash,
   VsTerminalCmd,
 } from "solid-icons/vs";
-import { For, Show } from "solid-js";
+import { createEffect, createSignal, For, JSX, onMount, Show } from "solid-js";
 import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
 import { install, installations, miniappMetas } from "~/components/miniapps";
+import { activeTabId, setActiveTabId } from "./tabs";
+
+function TabsIndicator() {
+  const [show, setShow] = createSignal(false);
+  let ref: HTMLDivElement;
+  onMount(() => {
+    const observer = new MutationObserver(() => {
+      const activeTab = document.querySelector("[data-tab-active='true']");
+      if (activeTab) {
+        const rect = activeTab.getBoundingClientRect();
+        ref.style.top = `${rect.top}px`;
+        ref.style.left = `${rect.left - 10}px`;
+        console.log("rect", rect);
+      }
+    });
+    observer.observe(document.body, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-tab-active"],
+    });
+
+    const first = document.querySelector("[data-tab-active]");
+    if (!first) return;
+
+    const rect = first.getBoundingClientRect();
+    ref.style.top = `${rect.top}px`;
+    ref.style.left = `${rect.left - 10}px`;
+    setShow(true);
+  });
+
+  return (
+    <div
+      ref={ref!}
+      data-show={show()}
+      class="fixed w-1 rounded-full h-11 bg-white duration-150 hidden data-[show=true]:block"
+    />
+  );
+}
+
+function TabTrigger(props: { children: JSX.Element; id: string }) {
+  return (
+    <div
+      onClick={() => {
+        setActiveTabId(props.id);
+      }}
+      data-tab-active={props.id === activeTabId()}
+      class="text-neutral-500 m-2 bg-white/5 rounded-lg border border-neutral-900 shadow-lg p-2 cursor-pointer hover:bg-white/10 hover:text-white data-[tab-active=true]:bg-white/10 data-[tab-active=true]:text-white"
+    >
+      {props.children}
+    </div>
+  );
+}
 
 export default function AppBar() {
   return (
@@ -78,28 +130,28 @@ export default function AppBar() {
         <div class="bg-neutral-900 h-[1px] " />
       </div>
 
-      <Tabs.List class="tabs__list">
-        <Tabs.Trigger class="tabs__trigger" value="add" as="div">
+      <div class="pl-[1px]">
+        <TabTrigger id="add">
           <VsAdd class="w-6 h-6 " />
-        </Tabs.Trigger>
-        <Tabs.Trigger class="tabs__trigger" value="profile" as="div">
+        </TabTrigger>
+        <TabTrigger id="profile">
           <VsAccount class="w-6 h-6 " />
-        </Tabs.Trigger>
+        </TabTrigger>
 
         <For each={installations()}>
           {(ins) => {
             const miniapp = miniappMetas.find((m) => m.id == ins.id);
             if (!miniapp) return <></>;
             return (
-              <Tabs.Trigger class="tabs__trigger" value={ins.id} as="div">
+              <TabTrigger id={ins.id}>
                 <miniapp.icon class="w-6 h-6" />
-              </Tabs.Trigger>
+              </TabTrigger>
             );
           }}
         </For>
 
-        <Tabs.Indicator class="tabs__indicator" />
-      </Tabs.List>
+        <TabsIndicator />
+      </div>
     </div>
   );
 }
