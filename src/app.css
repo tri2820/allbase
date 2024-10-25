@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 :root {
+  --background-rgb: 0, 0, 0;
+    --foreground-rgb: 255, 255, 255;
+}
+/* :root {
   --background-rgb: 214, 219, 220;
   --foreground-rgb: 0, 0, 0;
 }
@@ -12,7 +16,7 @@
     --background-rgb: 0, 0, 0;
     --foreground-rgb: 255, 255, 255;
   }
-}
+} */
 
 body {
   background: rgb(var(--background-rgb));
@@ -106,6 +110,11 @@ body {
 .hide-scrollbar {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
+}
+
+.nice-scrollbar {  
+  scrollbar-width: thin;
+  scrollbar-color: rgb(23 23 23 / 0.5)  transparent;
 }
 
 .dropdown-menu__trigger {
