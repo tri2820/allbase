@@ -5,7 +5,7 @@ import {
   mkButton,
   selectedMiniappId,
   setSelectedMiniappId,
-} from "./miniapps";
+} from "~/components/miniapps";
 
 export default function TabAddSidebar() {
   return (
@@ -29,44 +29,6 @@ export default function TabAddSidebar() {
               }
               return mkButton("install");
             };
-
-            // const doingLabel = () => {
-            //   if (
-            //     tasks().some(
-            //       (t) =>
-            //         t.type == "install" && t.miniapp_id == m.id && !t.completed
-            //     )
-            //   ) {
-            //     return "Installing";
-            //   }
-
-            //   if (
-            //     tasks().some(
-            //       (t) =>
-            //         t.type == "remove" && t.miniapp_id == m.id && !t.completed
-            //     )
-            //   ) {
-            //     return "Removing";
-            //   }
-
-            //   if (
-            //     tasks().some(
-            //       (t) =>
-            //         t.type == "disable" && t.miniapp_id == m.id && !t.completed
-            //     )
-            //   ) {
-            //     return "Disabling";
-            //   }
-
-            //   if (
-            //     tasks().some(
-            //       (t) =>
-            //         t.type == "enable" && t.miniapp_id == m.id && !t.completed
-            //     )
-            //   ) {
-            //     return "Enabling";
-            //   }
-            // };
 
             return (
               <div

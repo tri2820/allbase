@@ -12,6 +12,7 @@ import {
   RunningTask,
   RunningTaskData,
 } from "~/components/tasks";
+import { Sandbox } from "~/lib/sandbox/sanbox";
 
 export type MiniAppMeta = {
   id: string;
@@ -23,17 +24,19 @@ export type MiniAppMeta = {
   icon: IconTypes | string;
 };
 
-const [installations, setInstallations] = createSignal<Installation[]>([]);
+export const [installations, setInstallations] = createSignal<Installation[]>(
+  []
+);
 export type Installation = {
   id: string;
-  // sandbox: Sandbox;
-  // build?
+  sandbox: Sandbox;
   disabled: boolean;
 };
 
 export const miniappMetas: MiniAppMeta[] = [
   {
     id: "0000-0000-0000-0009",
+
     name: "Communication Hub",
     description:
       "Bring every conversation together—stay in the loop without the clutter.",
@@ -166,9 +169,14 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
 
 export const install = async (miniapp: MiniAppMeta) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  Sandbox.lockdown();
   const installation = {
     id: miniapp.id,
     disabled: false,
+    sandbox: new Sandbox({
+      id: miniapp.id,
+    }),
   };
   setInstallations([...installations(), installation]);
 };
@@ -176,15 +184,36 @@ export const install = async (miniapp: MiniAppMeta) => {
 export const remove = async (miniapp: MiniAppMeta) => {
   // Remove
   await new Promise((resolve) => setTimeout(resolve, 1000));
+  setInstallations([
+    ...installations().filter((installation) => installation.id != miniapp.id),
+  ]);
 };
 
 export const enable = async (miniapp: MiniAppMeta) => {
   await new Promise((resolve) => setTimeout(resolve, 1000));
+  const installation = installationOf(miniapp.id);
+  if (!installation) return;
+  setInstallations([
+    ...installations().filter((installation) => installation.id != miniapp.id),
+    {
+      ...installation,
+      disabled: false,
+    },
+  ]);
 };
 
 export const disable = async (miniapp: MiniAppMeta) => {
   // Disable
   await new Promise((resolve) => setTimeout(resolve, 1000));
+  const installation = installationOf(miniapp.id);
+  if (!installation) return;
+  setInstallations([
+    ...installations().filter((installation) => installation.id != miniapp.id),
+    {
+      ...installation,
+      disabled: true,
+    },
+  ]);
 };
 
 export const installationOf = (miniapp_id: string) =>

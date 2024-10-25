@@ -1,5 +1,5 @@
 import { marked } from "marked";
-import { JSX, Show } from "solid-js";
+import { For, JSX, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import {
   installationOf,
@@ -7,7 +7,7 @@ import {
   miniappMetas,
   mkButton,
   selectedMiniappId,
-} from "./miniapps";
+} from "~/components/miniapps";
 
 const views: Record<string, (props: any) => JSX.Element> = {
   false: () => (
@@ -28,8 +28,14 @@ const views: Record<string, (props: any) => JSX.Element> = {
                 fallback={mkButton("install")(props.miniapp)}
                 when={installationOf(props.miniapp.id)}
               >
-                {mkButton("remove")(props.miniapp)}
-                {mkButton("disable")(props.miniapp)}
+                {(installation) => (
+                  <>
+                    {mkButton("remove")(props.miniapp)}
+                    {installation().disabled
+                      ? mkButton("enable")(props.miniapp)
+                      : mkButton("disable")(props.miniapp)}
+                  </>
+                )}
               </Show>
             </div>
           </div>
@@ -47,11 +53,13 @@ const views: Record<string, (props: any) => JSX.Element> = {
             <div class="uppercase tracking-tight text-sm py-4">Categories</div>
 
             <div class="flex flex-wrap gap-2">
-              {props.miniapp.categories.map((e) => (
-                <div class="border border-neutral-900 px-2 py-1 text-sm">
-                  {e}
-                </div>
-              ))}
+              <For each={props.miniapp.categories}>
+                {(e) => (
+                  <div class="border border-neutral-900 px-2 py-1 text-sm">
+                    {e}
+                  </div>
+                )}
+              </For>
             </div>
           </div>
         </div>

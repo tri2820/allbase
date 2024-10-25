@@ -7,9 +7,13 @@ import {
   VsLoading,
   VsPassFilled,
   VsPulse,
+  VsTerminal,
+  VsTerminalBash,
+  VsTerminalCmd,
 } from "solid-icons/vs";
-import { Show } from "solid-js";
+import { For, Show } from "solid-js";
 import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
+import { install, installations, miniappMetas } from "~/components/miniapps";
 
 export default function AppBar() {
   return (
@@ -45,22 +49,24 @@ export default function AppBar() {
                   Activities
                 </div>
 
-                {sortedTasks().map((task) => (
-                  <div
-                    class="p-2 px-4 flex items-center space-x-2  data-[completed=false]:animate-pulse max-w-sm overflow-hidden"
-                    data-completed={task.completed ? true : false}
-                  >
-                    <div class="flex-none">
-                      <Show
-                        when={task.completed}
-                        fallback={<VsLoading class="w-4 h-4 animate-spin" />}
-                      >
-                        <VsPassFilled class="w-4 h-4" />
-                      </Show>
+                <For each={sortedTasks()}>
+                  {(task) => (
+                    <div
+                      class="p-2 px-4 flex items-center space-x-2  data-[completed=false]:animate-pulse max-w-sm overflow-hidden"
+                      data-completed={task.completed ? true : false}
+                    >
+                      <div class="flex-none">
+                        <Show
+                          when={task.completed}
+                          fallback={<VsLoading class="w-4 h-4 animate-spin" />}
+                        >
+                          <VsPassFilled class="w-4 h-4" />
+                        </Show>
+                      </div>
+                      <div class="text-sm truncate">{task.description}</div>
                     </div>
-                    <div class="text-sm truncate">{task.description}</div>
-                  </div>
-                ))}
+                  )}
+                </For>
               </div>
             </Show>
             <DropdownMenu.Arrow />
@@ -79,9 +85,19 @@ export default function AppBar() {
         <Tabs.Trigger class="tabs__trigger" value="profile" as="div">
           <VsAccount class="w-6 h-6 " />
         </Tabs.Trigger>
-        <Tabs.Trigger class="tabs__trigger " value="chat" as="div">
-          <VsCommentDiscussion class="w-6 h-6" />
-        </Tabs.Trigger>
+
+        <For each={installations()}>
+          {(ins) => {
+            const miniapp = miniappMetas.find((m) => m.id == ins.id);
+            if (!miniapp) return <></>;
+            return (
+              <Tabs.Trigger class="tabs__trigger" value={ins.id} as="div">
+                <miniapp.icon class="w-6 h-6" />
+              </Tabs.Trigger>
+            );
+          }}
+        </For>
+
         <Tabs.Indicator class="tabs__indicator" />
       </Tabs.List>
     </div>

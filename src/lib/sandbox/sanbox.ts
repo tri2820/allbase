@@ -10,35 +10,47 @@ declare global {
 
 export type SandboxOptions = {
   id: string;
-  globals: {};
-  window: Window;
 };
+
+if (typeof window !== "undefined") {
+  // @ts-ignore
+  window.mem = new Membrane()
+  // @ts-ignore
+  console.log('window.mem', window.mem)
+}
 
 export class Sandbox {
   private membrane = new Membrane();
   private compartment: Compartment;
 
-  
+  static lockdown(){
+    if (window.sesLockedDown) return;
+    window.sesLockedDown = true;
+    lockdown({
+      overrideTaming: "severe",
+    });
+  }
 
   constructor(options: SandboxOptions) {
-    const safeWindow = this.membrane.wrap(options.window);
-
-    // TODO: Implement distortion logic
-    this.membrane
+    const safeWindow = this.membrane.wrap(window);
+    // TODO: make alert and stuffs appear on top level (call `alert` instead of `window.alert`)
+    const globals : any = {
+      ...safeWindow,
+      window: safeWindow,
+      console,
+      Date,
+      Math
+    };
 
     this.compartment = new Compartment({
       id: options.id,
-      globals: {
-        ...safeWindow,
-        window: safeWindow,
-        self: safeWindow,
-        ...options.globals,
-      },
+      globals,
       __options__: true,
     });
   }
 
   evaluate(code: string) {
+    console.log('code', code)
     return this.compartment.evaluate(code, {
       __evadeHtmlCommentTest__: true,
     });
