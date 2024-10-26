@@ -1,6 +1,6 @@
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { onMount, Suspense } from "solid-js";
 
 import "@fontsource/poppins/100.css";
 import "@fontsource/poppins/200.css";
@@ -13,7 +13,10 @@ import "@fontsource/poppins/800.css";
 import "@fontsource/poppins/900.css";
 import "./app.css";
 
+
+
 export default function App() {
+
   return (
     <Router
       root={(props) => (
