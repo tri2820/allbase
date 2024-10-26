@@ -26,7 +26,6 @@ function TabsIndicator() {
         const rect = activeTab.getBoundingClientRect();
         ref.style.top = `${rect.top}px`;
         ref.style.left = `${rect.left - 10}px`;
-        console.log("rect", rect);
       }
     });
     observer.observe(document.body, {
@@ -35,12 +34,13 @@ function TabsIndicator() {
       attributeFilter: ["data-tab-active"],
     });
 
-    const first = document.querySelector("[data-tab-active]");
+    const first = document.querySelector("[data-tab-trigger-id]");
     if (!first) return;
 
     const rect = first.getBoundingClientRect();
-    ref.style.top = `${rect.top}px`;
+    ref.style.top = `${rect.top - 1}px`;
     ref.style.left = `${rect.left - 10}px`;
+    setActiveTabId(first.getAttribute("data-tab-trigger-id")!);
     setShow(true);
   });
 
@@ -56,6 +56,7 @@ function TabsIndicator() {
 function TabTrigger(props: { children: JSX.Element; id: string }) {
   return (
     <div
+      data-tab-trigger-id={props.id}
       onClick={() => {
         setActiveTabId(props.id);
       }}

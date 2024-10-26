@@ -168,7 +168,7 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
 }
 
 export const install = async (miniapp: MiniAppMeta) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
 
   Sandbox.lockdown();
   const installation = {
@@ -183,14 +183,14 @@ export const install = async (miniapp: MiniAppMeta) => {
 
 export const remove = async (miniapp: MiniAppMeta) => {
   // Remove
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
   setInstallations([
     ...installations().filter((installation) => installation.id != miniapp.id),
   ]);
 };
 
 export const enable = async (miniapp: MiniAppMeta) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
   const installation = installationOf(miniapp.id);
   if (!installation) return;
   setInstallations([
@@ -204,7 +204,7 @@ export const enable = async (miniapp: MiniAppMeta) => {
 
 export const disable = async (miniapp: MiniAppMeta) => {
   // Disable
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
   const installation = installationOf(miniapp.id);
   if (!installation) return;
   setInstallations([

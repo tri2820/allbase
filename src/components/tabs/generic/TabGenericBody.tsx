@@ -1,7 +1,7 @@
 import { onCleanup, onMount } from "solid-js";
 import { installationOf, miniappMetas } from "~/components/miniapps";
 import esBundle from "~/lib/bundler";
-
+import threeJSCube from "~/test/threejs-cube?raw";
 export default function TabGenericBody(props: { miniapp_id: string }) {
   const installation = installationOf(props.miniapp_id);
   const miniappMeta = miniappMetas.find(
@@ -15,13 +15,14 @@ export default function TabGenericBody(props: { miniapp_id: string }) {
   let shadow: HTMLDivElement;
   onMount(async () => {
     installation.sandbox.shadowRoot = shadow.attachShadow({ mode: "closed" });
-    const js = `
-      (() => {
-        const div = document.createElement("div");
-        div.textContent = "This is the generic tab's shadow root";
-        globalThis.shadowRoot.appendChild(div);
-      })()
-    `;
+    const div = document.createElement("div");
+    div.id = `shadow-dom`;
+    div.style.width = "100%";
+    div.style.height = "100%";
+
+    installation.sandbox.shadowRoot.appendChild(div);
+
+    const js = threeJSCube;
     const { error, output } = await esBundle(js);
     if (error) {
       console.log(error);
@@ -40,5 +41,5 @@ export default function TabGenericBody(props: { miniapp_id: string }) {
     console.log("me destroyed!");
   });
 
-  return <div ref={shadow!} />;
+  return <div ref={shadow!} class="w-full h-full" />;
 }
