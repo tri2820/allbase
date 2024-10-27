@@ -12,9 +12,10 @@ import {
   RunningTask,
   RunningTaskData,
 } from "~/components/tasks";
+import { sw } from "~/global";
 import { Sandbox } from "~/lib/sandbox/sanbox";
 
-export type MiniAppMeta = {
+export type AppMeta = {
   id: string;
   name: string;
   description: string;
@@ -33,7 +34,7 @@ export type Installation = {
   disabled: boolean;
 };
 
-export const miniappMetas: MiniAppMeta[] = [
+export const AppMetas: AppMeta[] = [
   {
     id: "0000-0000-0000-0009",
 
@@ -152,7 +153,7 @@ A powerful note-taking tool with templates, rich text editing and real-time coll
   },
 ];
 
-export const [selectedMiniappId, setSelectedMiniappId] = createSignal<
+export const [selectedAppId, setSelectedAppId] = createSignal<
   string | undefined
 >(undefined);
 
@@ -167,34 +168,43 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
   };
 }
 
-export const install = async (miniapp: MiniAppMeta) => {
+
+export const install = async (app: AppMeta) => {
   // await new Promise((resolve) => setTimeout(resolve, 1000));
+  sw().postMessage({
+    type: 'INSTALL_APP',
+    app_id: app.id,
+    git: 'https://github.com/tri2820/app-test',
+    dir: '/dist',
+    offline: false
+  });
+  return;
 
   Sandbox.lockdown();
   const installation = {
-    id: miniapp.id,
+    id: app.id,
     disabled: false,
     sandbox: new Sandbox({
-      id: miniapp.id,
+      id: app.id,
     }),
   };
   setInstallations([...installations(), installation]);
 };
 
-export const remove = async (miniapp: MiniAppMeta) => {
+export const remove = async (app: AppMeta) => {
   // Remove
   // await new Promise((resolve) => setTimeout(resolve, 1000));
   setInstallations([
-    ...installations().filter((installation) => installation.id != miniapp.id),
+    ...installations().filter((installation) => installation.id != app.id),
   ]);
 };
 
-export const enable = async (miniapp: MiniAppMeta) => {
+export const enable = async (app: AppMeta) => {
   // await new Promise((resolve) => setTimeout(resolve, 1000));
-  const installation = installationOf(miniapp.id);
+  const installation = installationOf(app.id);
   if (!installation) return;
   setInstallations([
-    ...installations().filter((installation) => installation.id != miniapp.id),
+    ...installations().filter((installation) => installation.id != app.id),
     {
       ...installation,
       disabled: false,
@@ -202,13 +212,13 @@ export const enable = async (miniapp: MiniAppMeta) => {
   ]);
 };
 
-export const disable = async (miniapp: MiniAppMeta) => {
+export const disable = async (app: AppMeta) => {
   // Disable
   // await new Promise((resolve) => setTimeout(resolve, 1000));
-  const installation = installationOf(miniapp.id);
+  const installation = installationOf(app.id);
   if (!installation) return;
   setInstallations([
-    ...installations().filter((installation) => installation.id != miniapp.id),
+    ...installations().filter((installation) => installation.id != app.id),
     {
       ...installation,
       disabled: true,
@@ -216,8 +226,8 @@ export const disable = async (miniapp: MiniAppMeta) => {
   ]);
 };
 
-export const installationOf = (miniapp_id: string) =>
-  installations().find((installation) => installation.id == miniapp_id);
+export const installationOf = (app_id: string) =>
+  installations().find((installation) => installation.id == app_id);
 
 export function mkButton(type: "install" | "remove" | "enable" | "disable") {
   const { f, label, doingLabel } = {
@@ -243,13 +253,13 @@ export function mkButton(type: "install" | "remove" | "enable" | "disable") {
     },
   }[type];
 
-  const taskAction = taskify(f)((miniapp) => ({
+  const taskAction = taskify(f)((app) => ({
     type,
-    miniapp_id: miniapp.id,
-    description: `${label} ${miniapp.name}`,
+    app_id: app.id,
+    description: `${label} ${app.name}`,
   }));
 
-  return (miniapp: MiniAppMeta) => {
+  return (app: AppMeta) => {
     const [doing, setDoing] = createSignal(false);
 
     return (
@@ -257,7 +267,7 @@ export function mkButton(type: "install" | "remove" | "enable" | "disable") {
         onClick={async (e) => {
           e.stopPropagation();
           setDoing(true);
-          await taskAction(miniapp);
+          await taskAction(app);
           setDoing(false);
         }}
         class="button-sm"

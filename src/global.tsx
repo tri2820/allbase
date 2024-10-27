@@ -1,4 +1,15 @@
-import { createSignal } from "solid-js";
 import useOverlay from "./components/UseOverlay";
 
 export const bodyOverlay = useOverlay();
+export const sw: () => Omit<ServiceWorker, 'postMessage'> & {
+    postMessage: (message: AppMessage) => void
+} = () => navigator.serviceWorker.controller!;
+
+
+export type AppMessage = {
+    type: 'INSTALL_APP',
+    app_id: string,
+    git: string,
+    dir: string,
+    offline: boolean
+}

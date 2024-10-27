@@ -1,25 +1,21 @@
-import { JSX } from "solid-js";
+import { children, JSX, Show } from "solid-js";
 
-import { Tabs } from "@kobalte/core/tabs";
-import { bodyOverlay } from "~/global";
-import AppBar from "./AppBar";
-
-export default function AppLayout(props: { children?: JSX.Element }) {
+export default function AppLayout(props: {
+  showSidebar?: boolean;
+  sidebar?: JSX.Element;
+  children?: JSX.Element;
+}) {
   return (
-    <Tabs
-      as="div"
-      onMouseMove={bodyOverlay.hideSoon}
-      onMouseLeave={bodyOverlay.hideSoon}
-      aria-label="Main navigation"
-      class="tabs min-h-screen flex items-start"
-      orientation="vertical"
-    >
-      <AppBar />
-      <div class="relative h-screen py-2 pr-2 flex-1">
-        <div class="h-full flex flex-col bg-neutral-950 rounded-lg border-neutral-900  border overflow-hidden">
-          {props.children}
+    <div class="flex items-start h-full">
+      <Show when={props.showSidebar}>
+        <div class="w-80 h-full border-r border-neutral-900 overflow-y-auto overflow-x-hidden nice-scrollbar">
+          {props.sidebar}
         </div>
+      </Show>
+
+      <div class="h-full flex-1 overflow-y-auto overflow-x-hidden nice-scrollbar">
+        {props.children}
       </div>
-    </Tabs>
+    </div>
   );
 }

@@ -1,7 +1,8 @@
 import { For, JSX } from "solid-js";
 import AppLayout from "~/components/AppLayout";
-import MiniAppLayout from "~/components/MiniAppLayout";
-import { installations } from "~/components/miniapps";
+
+import { installations } from "~/components/apps";
+import Layout from "~/components/Layout";
 import { activeTabId } from "~/components/tabs";
 import TabAddBody from "~/components/tabs/add/TabAddBody";
 import TabAddSidebar from "~/components/tabs/add/TabAddSidebar";
@@ -22,28 +23,28 @@ function TabContent(props: { children?: JSX.Element; id: string }) {
 
 export default function Home() {
   return (
-    <AppLayout>
+    <Layout>
       <TabContent id="profile">
-        <MiniAppLayout>
+        <AppLayout>
           <TabProfileBody />
-        </MiniAppLayout>
+        </AppLayout>
       </TabContent>
 
       <TabContent id="add">
-        <MiniAppLayout showSidebar sidebar={<TabAddSidebar />}>
+        <AppLayout showSidebar sidebar={<TabAddSidebar />}>
           <TabAddBody />
-        </MiniAppLayout>
+        </AppLayout>
       </TabContent>
 
       <For each={installations()}>
         {(ins) => (
           <TabContent id={ins.id}>
-            <MiniAppLayout sidebar={<TabGenericSidebar />}>
-              <TabGenericBody miniapp_id={ins.id} />
-            </MiniAppLayout>
+            <AppLayout sidebar={<TabGenericSidebar />}>
+              <TabGenericBody app_id={ins.id} />
+            </AppLayout>
           </TabContent>
         )}
       </For>
-    </AppLayout>
+    </Layout>
   );
 }

@@ -2,7 +2,7 @@ import { Accessor, batch, createSignal, Setter } from "solid-js";
 
 export type RunningTaskData = {
   type: "install" | "remove" | "disable" | "enable";
-  miniapp_id: string;
+  app_id: string;
   description: string;
 };
 export type RunningTask = {

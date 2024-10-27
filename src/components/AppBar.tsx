@@ -13,7 +13,7 @@ import {
 } from "solid-icons/vs";
 import { createEffect, createSignal, For, JSX, onMount, Show } from "solid-js";
 import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
-import { install, installations, miniappMetas } from "~/components/miniapps";
+import { install, installations, AppMetas } from "~/components/apps";
 import { activeTabId, setActiveTabId } from "./tabs";
 
 function TabsIndicator() {
@@ -141,11 +141,11 @@ export default function AppBar() {
 
         <For each={installations()}>
           {(ins) => {
-            const miniapp = miniappMetas.find((m) => m.id == ins.id);
-            if (!miniapp) return <></>;
+            const app = AppMetas.find((m) => m.id == ins.id);
+            if (!app) return <></>;
             return (
               <TabTrigger id={ins.id}>
-                <miniapp.icon class="w-6 h-6" />
+                <app.icon class="w-6 h-6" />
               </TabTrigger>
             );
           }}

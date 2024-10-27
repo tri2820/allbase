@@ -1,14 +1,14 @@
 import { onCleanup, onMount } from "solid-js";
-import { installationOf, miniappMetas } from "~/components/miniapps";
+import { installationOf, AppMetas } from "~/components/apps";
 import esBundle from "~/lib/bundler";
 import threeJSCube from "~/test/threejs-cube?raw";
-export default function TabGenericBody(props: { miniapp_id: string }) {
-  const installation = installationOf(props.miniapp_id);
-  const miniappMeta = miniappMetas.find(
-    (miniappMeta) => miniappMeta.id == props.miniapp_id
+export default function TabGenericBody(props: { app_id: string }) {
+  const installation = installationOf(props.app_id);
+  const AppMeta = AppMetas.find(
+    (AppMeta) => AppMeta.id == props.app_id
   );
 
-  if (!miniappMeta || !installation) {
+  if (!AppMeta || !installation) {
     return <div>Not found</div>;
   }
 

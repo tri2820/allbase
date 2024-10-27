@@ -3,37 +3,39 @@ import { For, JSX, Show } from "solid-js";
 import { Dynamic } from "solid-js/web";
 import {
   installationOf,
-  MiniAppMeta,
-  miniappMetas,
+
+  AppMetas,
   mkButton,
-  selectedMiniappId,
-} from "~/components/miniapps";
+  AppMeta,
+  selectedAppId,
+
+} from "~/components/apps";
 
 const views: Record<string, (props: any) => JSX.Element> = {
   false: () => (
-    <div class="text-neutral-600">Select a miniapp to see it's details</div>
+    <div class="text-neutral-600">Select a app to see it's details</div>
   ),
-  true: (props: { miniapp: MiniAppMeta }) => {
-    const html = () => marked.parse(props.miniapp.readme) as string;
-    const icon = () => <props.miniapp.icon class="w-10 h-10 " />;
+  true: (props: { app: AppMeta }) => {
+    const html = () => marked.parse(props.app.readme) as string;
+    const icon = () => <props.app.icon class="w-10 h-10 " />;
     return (
       <div>
         <div class="flex items-start space-x-4">
           <div class="icon flex-none">{icon()}</div>
           <div class="flex-1">
-            <div class="font-bold text-2xl">{props.miniapp.name}</div>
-            <div class="text-neutral-400">{props.miniapp.description}</div>
+            <div class="font-bold text-2xl">{props.app.name}</div>
+            <div class="text-neutral-400">{props.app.description}</div>
             <div class="flex items-center space-x-2 py-2">
               <Show
-                fallback={mkButton("install")(props.miniapp)}
-                when={installationOf(props.miniapp.id)}
+                fallback={mkButton("install")(props.app)}
+                when={installationOf(props.app.id)}
               >
                 {(installation) => (
                   <>
-                    {mkButton("remove")(props.miniapp)}
+                    {mkButton("remove")(props.app)}
                     {installation().disabled
-                      ? mkButton("enable")(props.miniapp)
-                      : mkButton("disable")(props.miniapp)}
+                      ? mkButton("enable")(props.app)
+                      : mkButton("disable")(props.app)}
                   </>
                 )}
               </Show>
@@ -53,7 +55,7 @@ const views: Record<string, (props: any) => JSX.Element> = {
             <div class="uppercase tracking-tight text-sm py-4">Categories</div>
 
             <div class="flex flex-wrap gap-2">
-              <For each={props.miniapp.categories}>
+              <For each={props.app.categories}>
                 {(e) => (
                   <div class="border border-neutral-900 px-2 py-1 text-sm">
                     {e}
@@ -69,13 +71,13 @@ const views: Record<string, (props: any) => JSX.Element> = {
 };
 
 export default function TabAddBody() {
-  const miniapp = () => miniappMetas.find((e) => e.id == selectedMiniappId());
+  const app = () => AppMetas.find((e) => e.id == selectedAppId());
 
   return (
     <div class="p-6  flex-1">
       <Dynamic
-        component={views[miniapp() ? "true" : "false"]}
-        miniapp={miniapp()}
+        component={views[app() ? "true" : "false"]}
+        app={app()}
       />
     </div>
   );

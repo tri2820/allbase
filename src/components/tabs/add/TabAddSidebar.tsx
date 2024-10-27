@@ -1,23 +1,23 @@
 import { For } from "solid-js/web";
 import {
   installationOf,
-  miniappMetas,
+  AppMetas,
   mkButton,
-  selectedMiniappId,
-  setSelectedMiniappId,
-} from "~/components/miniapps";
+  selectedAppId,
+  setSelectedAppId,
+} from "~/components/apps";
 
 export default function TabAddSidebar() {
   return (
     <div class="overflow-y-auto overflow-x-hidden flex-1">
-      <div class="uppercase tracking-tight text-sm py-4 px-6">MiniApps</div>
+      <div class="uppercase tracking-tight text-sm py-4 px-6">apps</div>
 
       <div class="px-6 py-2">
         <input class="outline-none w-full bg-neutral-900 rounded border border-neutral-800 p-1 text-sm" />
       </div>
 
       <div>
-        <For each={miniappMetas}>
+        <For each={AppMetas}>
           {(m) => {
             const btn = () => {
               const installation = installationOf(m.id);
@@ -33,13 +33,13 @@ export default function TabAddSidebar() {
             return (
               <div
                 onClick={() => {
-                  if (selectedMiniappId() == m.id) {
-                    setSelectedMiniappId();
+                  if (selectedAppId() == m.id) {
+                    setSelectedAppId();
                     return;
                   }
-                  setSelectedMiniappId(m.id);
+                  setSelectedAppId(m.id);
                 }}
-                data-selected={selectedMiniappId() == m.id}
+                data-selected={selectedAppId() == m.id}
                 class="flex items-start cursor-pointer space-x-4 px-6 py-4 hover:bg-neutral-900 data-[selected=true]:bg-neutral-900"
               >
                 <div class="icon flex-none">
