@@ -178,7 +178,7 @@ export const install = async (app: AppMeta) => {
     dir: '/dist',
     offline: false
   });
-  return;
+  // return;
 
   Sandbox.lockdown();
   const installation = {
