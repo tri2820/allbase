@@ -23,8 +23,14 @@ const views: Record<string, (props: any) => JSX.Element> = {
         <div class="flex items-start space-x-4">
           <div class="icon flex-none">{icon()}</div>
           <div class="flex-1">
-            <div class="font-bold text-2xl">{props.app.name}</div>
+            <div class="py-2 space-y-1">
+              <div class="font-bold text-2xl">{props.app.name}</div>
+              <div class="text-neutral-400 line-clamp-1">
+                {props.app.author_name}
+              </div>
+            </div>
             <div class="text-neutral-400">{props.app.description}</div>
+
             <div class="flex items-center space-x-2 py-2">
               <Show
                 fallback={mkButton("install")(props.app)}

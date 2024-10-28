@@ -1,5 +1,5 @@
 import "ses";
-import Membrane from "./membrane";
+import Membrane, { Distortion } from "./membrane";
 
 
 declare global {
@@ -12,12 +12,32 @@ export type SandboxOptions = {
   id: string;
 };
 
+if (typeof window !== 'undefined') {
+  // @ts-ignore
+  window.m = new Membrane();
+  // @ts-ignore
+  window.m.distortion = {
+    get: (obj) => {
+      if (obj == document.body) {
+        throw new Error('document.body is not accessible')
+      }
+    },
+    apply: (obj, func, args) => {
+      if (obj == document && func.name == 'getElementById') {
+        console.log('called', {
+          obj, func, args
+        })
+      }
+    }
+  } as Distortion
+}
+
 export class Sandbox {
   private membrane = new Membrane();
   private compartment: Compartment | undefined;
   public shadowRoot: ShadowRoot | undefined;
 
-  static lockdown(){
+  static lockdown() {
     if (window.sesLockedDown) return;
     window.sesLockedDown = true;
     lockdown({
@@ -26,14 +46,14 @@ export class Sandbox {
   }
 
   constructor(public options: SandboxOptions) {
-    
+
   }
 
   // lazily init when shadowRoot and stuffs have been all setup
-  private init(){
+  private init() {
     const safeWindow = this.membrane.wrap(window);
     // TODO: make alert and stuffs appear on top level (call `alert` instead of `window.alert`)
-    const globals : any = {
+    const globals: any = {
       ...safeWindow,
       window: safeWindow,
       console,
@@ -56,5 +76,9 @@ export class Sandbox {
     return compartment.evaluate(code, {
       __evadeHtmlCommentTest__: true,
     });
+  }
+
+  setDistortion(distortion: Distortion) {
+    this.membrane.distortion = distortion;
   }
 }

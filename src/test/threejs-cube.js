@@ -7,7 +7,7 @@ import * as THREE from "three";
   canvas.style.height = "100%";
   canvas.style.display = "block";
 
-  const renderer = new THREE.WebGLRenderer({ canvas });
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
 
   // There's no reason to set the aspect here because we're going
   // to set it every frame anyway so we'll set it to 2 since 2

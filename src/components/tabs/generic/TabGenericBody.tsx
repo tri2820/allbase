@@ -1,7 +1,10 @@
 import { onCleanup, onMount } from "solid-js";
-import { installationOf, AppMetas } from "~/components/apps";
+import { installationOf, AppMetas, install } from "~/components/apps";
 import esBundle from "~/lib/bundler";
 import threeJSCube from "~/test/threejs-cube?raw";
+import threeJSCubeBundle from "/home/tri/Desktop/allbase/examples/three-cube/dist/main.js?raw";
+
+
 export default function TabGenericBody(props: { app_id: string }) {
   const installation = installationOf(props.app_id);
   const AppMeta = AppMetas.find(
@@ -14,21 +17,49 @@ export default function TabGenericBody(props: { app_id: string }) {
 
   let shadow: HTMLDivElement;
   onMount(async () => {
-    installation.sandbox.shadowRoot = shadow.attachShadow({ mode: "closed" });
+    // @ts-ignore
+    window.s = installation.sandbox;
+    const shadowRoot = shadow.attachShadow({ mode: "closed" });
+    installation.sandbox.shadowRoot = shadowRoot;
+    installation.sandbox.setDistortion({
+      get: (obj) => {
+        if (obj == document.body) {
+          throw new Error('document.body is not accessible')
+        }
+      },
+      apply: (obj, func, args) => {
+        if (obj == document && func.name == 'getElementById') {
+          return {
+            // @ts-ignore
+            value: shadowRoot.getElementById(...args)
+          }
+        }
+
+      }
+    })
+
+    // create index.html
     const div = document.createElement("div");
-    div.id = `shadow-dom`;
-    div.style.width = "100%";
-    div.style.height = "100%";
+    div.id = `app`;
+    shadowRoot.appendChild(div);
 
-    installation.sandbox.shadowRoot.appendChild(div);
 
-    const js = threeJSCube;
+    const style = document.createElement('style');
+    style.textContent = `
+      #app {
+        height: 100vh;
+      }
+    `;
+    shadowRoot.appendChild(style);
+
+
+    // const js = threeJSCube;
+    const js = threeJSCubeBundle;
     const { error, output } = await esBundle(js);
     if (error) {
       console.log(error);
       return;
     }
-    console.log("output", output);
     try {
       const result = installation.sandbox.evaluate(output);
       console.log("result", result);

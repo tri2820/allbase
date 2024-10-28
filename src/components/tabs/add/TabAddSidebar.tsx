@@ -52,7 +52,7 @@ export default function TabAddSidebar() {
                   <div class="text-neutral-400 line-clamp-1 leading-none ">
                     {m.description}
                   </div>
-                  <div class="flex items-center w-full ">
+                  <div class="flex items-center w-full">
                     <div class="flex-1 text-neutral-400 text-xs line-clamp-1 font-semibold leading-none ">
                       {m.author_name}
                     </div>
