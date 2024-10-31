@@ -1,16 +1,10 @@
 import { IconTypes } from "solid-icons";
-import {
-  VsArrowBoth,
-  VsCommentDiscussion,
-  VsEdit,
-  VsProject,
-} from "solid-icons/vs";
+import { BsBugFill, BsChatFill, BsCursorFill, BsKanban, BsPassFill, BsPenFill, BsSafe, BsSafeFill } from "solid-icons/bs";
 import { createSignal } from "solid-js";
 import {
   addTask,
   markComplete,
-  RunningTask,
-  RunningTaskData,
+  RunningTaskData
 } from "~/components/tasks";
 import { sw } from "~/global";
 import { Sandbox } from "~/lib/sandbox/sanbox";
@@ -23,6 +17,7 @@ export type AppMeta = {
   categories: string[];
   author_name: string;
   icon: IconTypes | string;
+  backgroundColor: `#${string}`;
 };
 
 export const [installations, setInstallations] = createSignal<Installation[]>(
@@ -69,31 +64,11 @@ The communication hub is a central location for all your conversations. It's the
 
 `,
     author_name: "AllBase",
-    icon: VsCommentDiscussion,
+    icon: BsChatFill,
     categories: ["Communication", "Collaboration"],
+    backgroundColor: '#129aab'
   },
-  {
-    id: "0000-0000-0000-0002",
-    name: "Threejs Cube",
-    description: "A simple test app for AllBase. Renders a Threejs cube.",
-    readme: `# Threejs Cube
 
-A simple test app for AllBase. Renders a Threejs cube.
-
-## Features
-
-- Renders a Threejs cube
-
-## How to use
-
-1. Open the app
-2. Click on the cube to rotate it
-
-`,
-    author_name: "AllBase",
-    icon: VsArrowBoth,
-    categories: ["Development", "Testing"],
-  },
 
   {
     id: "0000-0000-0000-0012",
@@ -121,8 +96,9 @@ Plan and track projects with Kanban boards, Gantt charts, and real-time collabor
 
 `,
     author_name: "AllBase",
-    icon: VsProject,
+    icon: BsKanban,
     categories: ["Productivity", "Project Management"],
+    backgroundColor: '#fa3a4a'
   },
   {
     id: "0000-0000-0000-0016",
@@ -148,9 +124,71 @@ A powerful note-taking tool with templates, rich text editing and real-time coll
 5. Click on the comment button to add a comment to the note
 `,
     author_name: "AllBase",
-    icon: VsEdit,
+    icon: BsPenFill,
     categories: ["Productivity", "Note-taking"],
+    backgroundColor: '#0ba749'
   },
+  {
+    id: "0000-0000-0000-0002",
+    name: "Threejs Cube",
+    description: "A simple test app for AllBase. Renders a Threejs cube.",
+    readme: `# Threejs Cube
+
+A simple test app for AllBase. Renders a Threejs cube.
+
+## Features
+
+- Renders a Threejs cube
+
+## How to use
+
+1. Open the app
+2. Click on the cube to rotate it
+
+`,
+    author_name: "AllBase",
+    icon: BsBugFill,
+    categories: ["Development", "Testing"],
+    backgroundColor: '#992bff'
+  },
+  {
+    id: "0000-0000-0000-0014",
+    name: "Password Vault",
+    description:
+      "Safely store and manage your passwords. Auto-fill login credentials with a single click.",
+    readme: `# Password Vault
+
+Safely store and manage your passwords. Auto-fill login credentials with a single click.
+
+## Features
+
+- Store passwords
+- Auto-fill login credentials
+
+## How to use
+
+1. Open the app
+2. Click on the add button to add a new password
+3. Type in the password name and password
+4. Click save to save the password
+5. Click on a password to auto-fill the login credentials
+`,
+    author_name: "AllBase",
+    icon: BsSafeFill,
+    categories: ["Security", "Password Management"],
+    backgroundColor: '#4a53fa'
+  },
+  {
+    id: "0000-0000-0000-0015",
+    name: "Whiteboard",
+    description: "A collaborative whiteboard app for team brainstorming and visual note-taking",
+    readme: "# Whiteboard\n\nWhiteboard is a collaborative digital canvas designed for teams and individuals to brainstorm, sketch, and share ideas. Perfect for project planning, flowcharts, and real-time team collaboration.\n\n## Features\n\n- Draw and erase\n- Type notes\n- Real-time collaboration\n- Sticky notes and shapes\n- Image import\n\n## How to Use\n\n1. Open the app and start or join a board.\n2. Click and drag to draw; use the eraser to remove items.\n3. Add text anywhere by clicking on the board.\n4. Organize ideas with sticky notes and shapes.\n5. Invite teammates to collaborate in real-time.\n\n---\n\nCreated by AllBase",
+    author_name: "AllBase",
+    icon: BsCursorFill,
+    categories: ["Productivity", "Collaboration", "Notes"],
+    backgroundColor: "#fd6005"
+  }
+
 ];
 
 export const [selectedAppId, setSelectedAppId] = createSignal<

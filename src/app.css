@@ -218,10 +218,6 @@ body {
   @apply v-el py-1 px-2 border text-xs rounded-lg disabled:cursor-not-allowed
 }
 
-.icon {
-  @apply text-neutral-500 p-2 rounded-lg border;
-}
-
 .tab-trigger {
   @apply v-el m-2 p-2 rounded-lg border cursor-pointer text-neutral-500;
 }

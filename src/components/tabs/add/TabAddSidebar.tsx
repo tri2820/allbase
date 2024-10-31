@@ -1,3 +1,5 @@
+import { BsSearch } from "solid-icons/bs";
+import { onMount } from "solid-js";
 import { For } from "solid-js/web";
 import {
   installationOf,
@@ -6,14 +8,20 @@ import {
   selectedAppId,
   setSelectedAppId,
 } from "~/components/apps";
+import Icon from "~/components/Icon";
 
 export default function TabAddSidebar() {
+  onMount(() => {
+    setSelectedAppId(AppMetas[0].id);
+  })
+
   return (
     <div class="overflow-y-auto overflow-x-hidden flex-1">
       <div class="header py-4 px-6">apps</div>
 
-      <div class="px-6 py-2">
-        <input class="outline-none rounded w-full v-el border  shadow-lg p-1 text-sm" />
+      <div class="mx-6 px-2 my-2 flex items-center v-el   border  shadow-lg rounded">
+        <BsSearch class="w-4 h-4 text-neutral-500 mr-2" />
+        <input class="outline-none w-auto min-w-0 bg-transparent  flex-1 p-1 text-sm caret-neutral-500" />
       </div>
 
       <div>
@@ -33,18 +41,17 @@ export default function TabAddSidebar() {
             return (
               <div
                 onClick={() => {
-                  if (selectedAppId() == m.id) {
-                    setSelectedAppId();
-                    return;
-                  }
+                  // if (selectedAppId() == m.id) {
+                  //   setSelectedAppId();
+                  //   return;
+                  // }
                   setSelectedAppId(m.id);
                 }}
                 data-selected={selectedAppId() == m.id}
                 class="flex items-start cursor-pointer space-x-4 px-6 py-4 v-hover-highlight"
               >
-                <div class="icon flex-none">
-                  <m.icon class="w-8 h-8 " />
-                </div>
+                <Icon m={m} size="md" />
+
                 <div class="flex-1 space-y-1">
                   <div class="font-bold line-clamp-1 leading-none">
                     {m.name}

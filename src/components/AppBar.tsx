@@ -1,20 +1,13 @@
 import { DropdownMenu } from "@kobalte/core/dropdown-menu";
-import { Tabs } from "@kobalte/core/tabs";
+import { BsActivity, BsPersonFill, BsPlusLg } from "solid-icons/bs";
 import {
-  VsAccount,
-  VsAdd,
-  VsCommentDiscussion,
   VsLoading,
-  VsPassFilled,
-  VsPulse,
-  VsTerminal,
-  VsTerminalBash,
-  VsTerminalCmd,
+  VsPassFilled
 } from "solid-icons/vs";
-import { createEffect, createSignal, For, JSX, onMount, Show, untrack } from "solid-js";
-import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
-import { install, installations, AppMetas } from "~/components/apps";
+import { createEffect, createSignal, For, JSX, onMount, Show } from "solid-js";
+import { AppMetas, installations } from "~/components/apps";
 import { activeTabId, setActiveTabId } from "./tabs";
+import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
 
 function TabsIndicator() {
   const [show, setShow] = createSignal(false);
@@ -83,7 +76,7 @@ export default function AppBar() {
           </Show>
 
           <DropdownMenu.Icon class=" flex items-center justify-center" as="div">
-            <VsPulse class="w-6 h-6" />
+            <BsActivity class="w-6 h-6" />
           </DropdownMenu.Icon>
         </DropdownMenu.Trigger>
 
@@ -133,10 +126,10 @@ export default function AppBar() {
 
       <div class="pl-[1px]">
         <TabTrigger id="add">
-          <VsAdd class="w-6 h-6 " />
+          <BsPlusLg class="w-6 h-6 " />
         </TabTrigger>
         <TabTrigger id="profile">
-          <VsAccount class="w-6 h-6 " />
+          <BsPersonFill class="w-6 h-6 " />
         </TabTrigger>
 
         <For each={installations()}>

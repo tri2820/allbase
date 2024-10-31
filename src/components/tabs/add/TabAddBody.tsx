@@ -10,6 +10,7 @@ import {
   selectedAppId,
 
 } from "~/components/apps";
+import Icon from "~/components/Icon";
 
 const views: Record<string, (props: any) => JSX.Element> = {
   false: () => (
@@ -17,11 +18,11 @@ const views: Record<string, (props: any) => JSX.Element> = {
   ),
   true: (props: { app: AppMeta }) => {
     const html = () => marked.parse(props.app.readme) as string;
-    const icon = () => <props.app.icon class="w-10 h-10 " />;
+    const icon = () => <Icon m={props.app} size="lg" />
     return (
       <div>
         <div class="flex items-start space-x-4">
-          <div class="icon flex-none">{icon()}</div>
+          <div class="flex-none">{icon()}</div>
           <div class="flex-1">
             <div class="py-2 space-y-1">
               <div class="font-bold text-2xl">{props.app.name}</div>
