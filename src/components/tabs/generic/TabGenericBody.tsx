@@ -20,28 +20,39 @@ export default function TabGenericBody(props: { app_id: string }) {
     // @ts-ignore
     window.s = installation.sandbox;
     const shadowRoot = shadow.attachShadow({ mode: "closed" });
-    installation.sandbox.shadowRoot = shadowRoot;
+    installation.sandbox.setProxyOnShadowRoot(shadowRoot);
     installation.sandbox.setDistortion({
       get: (obj) => {
         if (obj == document.body) {
           throw new Error('document.body is not accessible')
         }
-      },
-      apply: (obj, func, args) => {
-        if (obj == document && func.name == 'getElementById') {
+
+        if (obj == document.getElementById) {
           return {
-            // @ts-ignore
-            value: shadowRoot.getElementById(...args)
+            ok: false,
+            value: (...args: any[]) => {
+              return installation.sandbox.getShadowRootProxy()!.getElementById(
+                // @ts-ignore
+                ...args
+              )
+            }
           }
         }
 
+        return {
+          ok: true,
+          value: undefined
+        }
       }
     })
+
 
     // create index.html
     const div = document.createElement("div");
     div.id = `app`;
     shadowRoot.appendChild(div);
+    console.log('shadowRoot', shadowRoot)
+
 
 
     const style = document.createElement('style');

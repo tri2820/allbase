@@ -9,8 +9,19 @@ const store = localforage.createInstance({
 });
 
 
+// fetch('http://localhost:5173/')
+//     .then(response => response.text())
+//     .then(data => {
+//         console.log('Data from localhost 5713:', data);
+//     })
+//     .catch(error => {
+//         console.error('Error fetching from localhost 5713:', error);
+//     });
+
 self.addEventListener('install', (event) => {
     console.log('Service Worker installing.');
+    self.skipWaiting();
+    console.log('Service Worker done installing.');
     // Perform install steps if needed (e.g., caching resources)
     store.setItem('greet', 'hello world')
 
@@ -27,12 +38,20 @@ self.addEventListener('fetch', (event) => {
             (async () => {
 
                 // const match = await caches.match(event.request);
-                console.log('hello', await store.getItem('greet'))
+                // console.log('hello', await store.getItem('greet'))
+
                 const url = new URL(event.request.url);
-                const intercept = url.pathname.startsWith('/:namespace')
+                console.log('fetch this', url.pathname)
+                const intercept = url.pathname.startsWith('/app')
+
+
                 if (intercept) {
-                    console.log('Intercept:', event.request.url);
-                    const responseData = { message: 'Hello from the Service Worker!' };
+                    const namespace = url.pathname.split('/')[2]
+                    const originalParam = url.searchParams.get('original')
+                    if (!originalParam) throw new Error('original param not found');
+                    const original = decodeURIComponent(originalParam)
+                    console.log('Intercept:', event.request.url, namespace);
+                    const responseData = { message: 'Hello from the Service Worker!', namespace, original };
                     return new Response(JSON.stringify(responseData), {
                         headers: { 'Content-Type': 'application/json' }
                     });

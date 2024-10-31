@@ -2189,6 +2189,8 @@
   });
   self.addEventListener("install", (event) => {
     console.log("Service Worker installing.");
+    self.skipWaiting();
+    console.log("Service Worker done installing.");
     store.setItem("greet", "hello world");
   });
   self.addEventListener("activate", (event) => {
@@ -2198,12 +2200,17 @@
     if (event.request.url.startsWith(self.location.origin)) {
       event.respondWith(
         (async () => {
-          console.log("hello", await store.getItem("greet"));
           const url = new URL(event.request.url);
-          const intercept = url.pathname.startsWith("/:namespace");
+          console.log("fetch this", url.pathname);
+          const intercept = url.pathname.startsWith("/app");
           if (intercept) {
-            console.log("Intercept:", event.request.url);
-            const responseData = { message: "Hello from the Service Worker!" };
+            const namespace = url.pathname.split("/")[2];
+            const originalParam = url.searchParams.get("original");
+            if (!originalParam)
+              throw new Error("original param not found");
+            const original = decodeURIComponent(originalParam);
+            console.log("Intercept:", event.request.url, namespace);
+            const responseData = { message: "Hello from the Service Worker!", namespace, original };
             return new Response(JSON.stringify(responseData), {
               headers: { "Content-Type": "application/json" }
             });

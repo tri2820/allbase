@@ -10,6 +10,7 @@
     "@fontsource/poppins": "^5.1.0",
     "@kobalte/core": "^0.13.7",
     "@kobalte/tailwindcss": "^0.9.0",
+    "@solidjs/meta": "^0.29.4",
     "@solidjs/router": "^0.14.10",
     "@solidjs/start": "^1.0.9",
     "autoprefixer": "^10.4.19",

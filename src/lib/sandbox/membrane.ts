@@ -1,14 +1,9 @@
 // TODO: revokable, expandos
 export type Distortion = {
   // Before an object passes through the membrane
-  get: (obj: any) => any
-  // Before a function is called
-  apply: (
-    obj: any,
-    func: any,
-    args: any
-  ) => undefined | {
-    value: any
+  get: (obj: any) => {
+    ok: boolean,
+    value?: any
   }
 }
 
@@ -117,7 +112,16 @@ export default class Membrane<T extends object> {
   }
 
   wrap<K extends T>(target: K): K {
-    this.distortion?.get(target)
+    if (this.distortion) {
+      // It is up to the distortion to return a `safe` value
+      const { ok, value } = this.distortion.get(target)
+      if (!ok) {
+        return value
+      }
+    }
+
+
+
 
     if (!Membrane.shouldWrap(target)) return target;
 
@@ -226,8 +230,8 @@ export default class Membrane<T extends object> {
         const wrappedThis = _this_membrane.wrap(_this);
         const wrappedArgs = args.map((arg) => _this_membrane.wrap(arg));
 
-        const result = _this_membrane.distortion?.apply(wrappedThis, target, wrappedArgs)
-        if (result) return _this_membrane.wrap(result.value);
+        // const result = _this_membrane.distortion?.apply(wrappedThis, target, wrappedArgs)
+        // if (result) return _this_membrane.wrap(result.value);
 
         const dangerousValue = Reflect.apply(
           target as Function,

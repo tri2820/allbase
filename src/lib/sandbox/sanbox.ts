@@ -12,36 +12,17 @@ export type SandboxOptions = {
   id: string;
 };
 
-if (typeof window !== 'undefined') {
-  // @ts-ignore
-  window.m = new Membrane();
-  // @ts-ignore
-  window.m.distortion = {
-    get: (obj) => {
-      if (obj == document.body) {
-        throw new Error('document.body is not accessible')
-      }
-    },
-    apply: (obj, func, args) => {
-      if (obj == document && func.name == 'getElementById') {
-        console.log('called', {
-          obj, func, args
-        })
-      }
-    }
-  } as Distortion
-}
-
 export class Sandbox {
   private membrane = new Membrane();
   private compartment: Compartment | undefined;
-  public shadowRoot: ShadowRoot | undefined;
+  private shadowRootProxy: ShadowRoot | undefined;
 
   static lockdown() {
     if (window.sesLockedDown) return;
     window.sesLockedDown = true;
     lockdown({
       overrideTaming: "severe",
+      errorTaming: 'unsafe-debug',
     });
   }
 
@@ -51,6 +32,25 @@ export class Sandbox {
 
   // lazily init when shadowRoot and stuffs have been all setup
   private init() {
+    const fetchWithNamespace = harden((...args: any[]) => {
+      const url = args[0];
+
+      if (typeof url === 'string' && url.startsWith('https://')) {
+        const namespace = this.options.id;
+        console.log('Original URL:', url);
+        const originalParam = encodeURIComponent(url)
+        const modifiedUrl = new URL(`${window.location.protocol}//${window.location.host}/app/${namespace}`);
+        modifiedUrl.searchParams.set('original', originalParam);
+
+        console.log('Modified URL:', modifiedUrl);
+        return fetch(modifiedUrl, ...args.slice(1));
+      }
+
+      console.log('URL did not match criteria for modification:', url);
+      return fetch(url, ...args.slice(1));
+    });
+
+
     const safeWindow = this.membrane.wrap(window);
     // TODO: make alert and stuffs appear on top level (call `alert` instead of `window.alert`)
     const globals: any = {
@@ -59,7 +59,8 @@ export class Sandbox {
       console,
       Date,
       Math,
-      shadowRoot: this.shadowRoot ? this.membrane.wrap(this.shadowRoot) : undefined
+      shadowRoot: this.shadowRootProxy,
+      fetch: fetchWithNamespace
     };
 
     this.compartment = new Compartment({
@@ -80,5 +81,13 @@ export class Sandbox {
 
   setDistortion(distortion: Distortion) {
     this.membrane.distortion = distortion;
+  }
+
+  setProxyOnShadowRoot(shadowRoot: ShadowRoot) {
+    this.shadowRootProxy = this.membrane.wrap(shadowRoot)
+  }
+
+  getShadowRootProxy() {
+    return this.shadowRootProxy
   }
 }

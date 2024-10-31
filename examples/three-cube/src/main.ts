@@ -7,6 +7,13 @@ import * as THREE from "three";
 // document.body.appendChild(app);
 const app = document.getElementById("app")!;
 
+(async () => {
+
+  const x = await fetch('https://example.com')
+  const y = await x.text()
+  console.log('text', y)
+
+})()
 const canvas = document.createElement("canvas");
 app.appendChild(canvas);
 canvas.style.width = "100%";
