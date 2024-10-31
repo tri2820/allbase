@@ -1,5 +1,5 @@
-import { BsSearch } from "solid-icons/bs";
-import { onMount } from "solid-js";
+import { ImSearch } from "solid-icons/im";
+import { createSignal, onMount } from "solid-js";
 import { For } from "solid-js/web";
 import {
   installationOf,
@@ -11,18 +11,42 @@ import {
 import Icon from "~/components/Icon";
 
 export default function TabAddSidebar() {
+  let input: HTMLInputElement;
+  const [isSearching, setIsSearching] = createSignal(false);
   onMount(() => {
     setSelectedAppId(AppMetas[0].id);
   })
 
   return (
     <div class="overflow-y-auto overflow-x-hidden flex-1">
-      <div class="header py-4 px-6">apps</div>
 
-      <div class="mx-6 px-2 my-2 flex items-center v-el   border  shadow-lg rounded">
-        <BsSearch class="w-4 h-4 text-neutral-500 mr-2" />
-        <input class="outline-none w-auto min-w-0 bg-transparent  flex-1 p-1 text-sm caret-neutral-500" />
+      <div class="flex items-center space-x-4">
+        <div class="header py-4 pl-6">apps</div>
+        <div data-show={!isSearching()} class="flex-1 hidden data-[show=true]:block" />
+        <div
+          data-show={isSearching()}
+          class="my-2 flex-none data-[show=true]:flex-1 flex items-stretch v-el border shadow-lg rounded-lg overflow-hidden">
+          <button class="flex-none  p-2" onClick={() => {
+            setIsSearching(true)
+            input!.focus();
+          }}>
+            <ImSearch class="w-4 h-4" />
+          </button>
+          <input
+            ref={input!}
+            onBlur={() => {
+              setIsSearching(false)
+            }}
+            data-show={isSearching()}
+            placeholder="Search"
+            class="outline-none  
+            min-w-0 flex-none 
+            placeholder-neutral-500
+            data-[show=true]:flex-1  w-0 text-sm caret-neutral-500 bg-transparent"
+          />
+        </div>
       </div>
+
 
       <div>
         <For each={AppMetas}>
