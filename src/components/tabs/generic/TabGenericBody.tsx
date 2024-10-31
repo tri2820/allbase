@@ -1,8 +1,7 @@
 import { onCleanup, onMount } from "solid-js";
 import { installationOf, AppMetas, install } from "~/components/apps";
 import esBundle from "~/lib/bundler";
-import threeJSCube from "~/test/threejs-cube?raw";
-import threeJSCubeBundle from "/home/tri/Desktop/allbase/examples/three-cube/dist/main.js?raw";
+import threeJSCubeBundle from "~/../examples/three-cube/dist/main.js?raw";
 
 
 export default function TabGenericBody(props: { app_id: string }) {
