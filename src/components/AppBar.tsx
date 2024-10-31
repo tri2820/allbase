@@ -11,7 +11,7 @@ import {
   VsTerminalBash,
   VsTerminalCmd,
 } from "solid-icons/vs";
-import { createEffect, createSignal, For, JSX, onMount, Show } from "solid-js";
+import { createEffect, createSignal, For, JSX, onMount, Show, untrack } from "solid-js";
 import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
 import { install, installations, AppMetas } from "~/components/apps";
 import { activeTabId, setActiveTabId } from "./tabs";
@@ -19,28 +19,27 @@ import { activeTabId, setActiveTabId } from "./tabs";
 function TabsIndicator() {
   const [show, setShow] = createSignal(false);
   let ref: HTMLDivElement;
-  onMount(() => {
-    const observer = new MutationObserver(() => {
-      const activeTab = document.querySelector("[data-tab-active='true']");
-      if (activeTab) {
-        const rect = activeTab.getBoundingClientRect();
-        ref.style.top = `${rect.top}px`;
-        ref.style.left = `${rect.left - 10}px`;
-      }
-    });
-    observer.observe(document.body, {
-      subtree: true,
-      attributes: true,
-      attributeFilter: ["data-tab-active"],
-    });
 
+  createEffect(() => {
+    const activeId = activeTabId()
+    const activeTab = document.querySelector(`[data-tab-trigger-id="${activeId}"]`);
+    if (!activeTab) return;
+    const rect = activeTab.getBoundingClientRect();
+    ref.style.top = `${rect.top}px`;
+    ref.style.left = `${rect.left - 10}px`;
+  })
+
+  onMount(() => {
     const first = document.querySelector("[data-tab-trigger-id]");
+
     if (!first) return;
 
     const rect = first.getBoundingClientRect();
     ref.style.top = `${rect.top - 1}px`;
     ref.style.left = `${rect.left - 10}px`;
-    setActiveTabId(first.getAttribute("data-tab-trigger-id")!);
+    const id = first.getAttribute("data-tab-trigger-id")!;
+    console.log('first id', first, id);
+    setActiveTabId(id);
     setShow(true);
   });
 
@@ -58,10 +57,11 @@ function TabTrigger(props: { children: JSX.Element; id: string }) {
     <div
       data-tab-trigger-id={props.id}
       onClick={() => {
+        console.log('setActiveTabId', props.id)
         setActiveTabId(props.id);
       }}
-      data-tab-active={props.id === activeTabId()}
-      class="text-neutral-500 m-2 bg-white/5 rounded-lg border border-neutral-900 shadow-lg p-2 cursor-pointer hover:bg-white/10 hover:text-white data-[tab-active=true]:bg-white/10 data-[tab-active=true]:text-white"
+      data-active={props.id === activeTabId()}
+      class="tab-trigger"
     >
       {props.children}
     </div>
@@ -70,7 +70,7 @@ function TabTrigger(props: { children: JSX.Element; id: string }) {
 
 export default function AppBar() {
   return (
-    <div class="bg-black flex flex-col h-screen overflow-y-auto overflow-x-hidden items-center py-4 hide-scrollbar">
+    <div class="flex flex-col h-screen overflow-y-auto overflow-x-hidden items-center py-4 hide-scrollbar">
       <DropdownMenu
         onOpenChange={() => {
           setNewTaskHint(false);
@@ -89,6 +89,10 @@ export default function AppBar() {
 
         <DropdownMenu.Portal>
           <DropdownMenu.Content class="dropdown-menu__content max-h-60 overflow-auto nice-scrollbar">
+            <div class="header c-description px-4  py-2">
+              Activities
+            </div>
+
             <Show
               when={sortedTasks().length > 0}
               fallback={
@@ -98,10 +102,6 @@ export default function AppBar() {
               }
             >
               <div class="max-h-52 nice-scrollbar">
-                <div class="uppercase tracking-tight text-xs px-4 text-neutral-500">
-                  Activities
-                </div>
-
                 <For each={sortedTasks()}>
                   {(task) => (
                     <div
@@ -128,7 +128,7 @@ export default function AppBar() {
       </DropdownMenu>
 
       <div class="w-full px-4">
-        <div class="bg-neutral-900 h-[1px] " />
+        <div class="divider" />
       </div>
 
       <div class="pl-[1px]">

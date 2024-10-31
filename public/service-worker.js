@@ -2201,7 +2201,6 @@
       event.respondWith(
         (async () => {
           const url = new URL(event.request.url);
-          console.log("fetch this", url.pathname);
           const intercept = url.pathname.startsWith("/app");
           if (intercept) {
             const namespace = url.pathname.split("/")[2];

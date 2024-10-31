@@ -8,7 +8,7 @@ export default function AppLayout(props: {
   return (
     <div class="flex items-start h-full">
       <Show when={props.showSidebar}>
-        <div class="w-80 h-full border-r border-neutral-900 overflow-y-auto overflow-x-hidden nice-scrollbar">
+        <div class="w-80 h-full border-r  overflow-y-auto overflow-x-hidden nice-scrollbar">
           {props.sidebar}
         </div>
       </Show>

@@ -16,7 +16,7 @@ export default function Layout(props: { children?: JSX.Element }) {
     >
       <AppBar />
       <div class="relative h-screen py-2 pr-2 flex-1">
-        <div class="h-full flex flex-col bg-neutral-950 rounded-lg border-neutral-900  border overflow-hidden">
+        <div class="h-full v-main flex flex-col rounded-lg  border overflow-hidden">
           {props.children}
         </div>
       </div>

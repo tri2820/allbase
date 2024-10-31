@@ -41,7 +41,7 @@ self.addEventListener('fetch', (event) => {
                 // console.log('hello', await store.getItem('greet'))
 
                 const url = new URL(event.request.url);
-                console.log('fetch this', url.pathname)
+                // console.log('fetch this', url.pathname)
                 const intercept = url.pathname.startsWith('/app')
 
 

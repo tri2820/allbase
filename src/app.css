@@ -4,8 +4,9 @@
 
 :root {
   --background-rgb: 0, 0, 0;
-    --foreground-rgb: 255, 255, 255;
+  --foreground-rgb: 255, 255, 255;
 }
+
 /* :root {
   --background-rgb: 214, 219, 220;
   --foreground-rgb: 0, 0, 0;
@@ -19,92 +20,35 @@
 } */
 
 body {
-  background: rgb(var(--background-rgb));
-  color: rgb(var(--foreground-rgb));
+  @apply bg-[#090909] text-white;
   font-family: 'Poppins', sans-serif;
 }
+
 
 .tabs {
   width: 100%;
 }
+
 .tabs[data-orientation="vertical"] {
   display: flex;
 }
+
 .tabs__list {
   position: relative;
   display: flex;
 }
-.tabs__list[data-orientation="horizontal"] {
-  align-items: center;
-  border-bottom: 1px solid #171717;
-}
+
+
 .tabs__list[data-orientation="vertical"] {
   flex-direction: column;
   align-items: stretch;
-  /* border-left: 1px solid #171717 */
 }
-.tabs__indicator {
-  position: absolute;
-  @apply bg-white;
-  transition: all 250ms;
-  
-}
-.tabs__indicator[data-orientation="horizontal"] {
-  bottom: -1px;
-  height: 2px;
-}
-.tabs__indicator[data-orientation="vertical"] {
-  left: 0px;
-  width: 3px;
-  @apply rounded-r-lg;
-}
-.tabs__trigger {
-  display: inline-block;
-  padding: 8px 8px;
-  outline: none;
-  @apply text-neutral-500 m-2 bg-white/5 rounded-lg border border-neutral-900 cursor-pointer shadow-lg ;
-}
-.tabs__trigger[data-highlighted]{
-  @apply bg-white/10;
-  color: white;
-}
-.tabs__trigger:hover {
-  @apply bg-white/10;
-  /* background-color: hsl(0 0% 15%); */
-  /* color: hsl(240 5% 34%); */
-  color: white;
-}
-.tabs__trigger:focus-visible {
-  @apply bg-white/10;
-}
-.tabs__trigger[data-disabled],
-.tabs__trigger[data-disabled]:hover {
-  opacity: 0.5;
-  background-color: transparent;
-}
+
+
 .tabs__content {
-  /* padding: 16px; */
   @apply h-full;
 }
 
-
-.button-sm {
-  @apply py-1 px-2 bg-neutral-900 border border-neutral-800 shadow-lg text-xs rounded-lg enabled:hover:bg-neutral-800  disabled:opacity-50 disabled:cursor-not-allowed
-}
-
-.label-sm {
-  @apply py-1 px-2 bg-neutral-900 text-xs rounded-lg text-neutral-500
-}
-
-.icon {
-  @apply text-neutral-500 p-2 bg-neutral-950 rounded-lg border border-neutral-900;
-}
-
-.simplebar-scrollbar::before {
-  /* @apply bg-neutral-800 */
-  background-color: #262626!important;
-  opacity: 0.4!important;
-}
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
@@ -112,37 +56,30 @@ body {
 
 /* Hide scrollbar for IE, Edge and Firefox */
 .hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 
-.nice-scrollbar {  
+.nice-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgb(23 23 23 / 0.5)  transparent;
+  scrollbar-color: rgb(23 23 23 / 0.5) transparent;
 }
 
 .dropdown-menu__trigger {
-  @apply text-neutral-500 m-2 bg-white/5 rounded-lg border border-neutral-900 cursor-pointer shadow-lg p-2;
+  @apply tab-trigger;
 }
-.dropdown-menu__trigger:hover {
-  @apply bg-white/10;
-}
+
+
 .dropdown-menu__trigger:focus-visible {
   outline: 2px solid rgb(255 255 255 / 0.1);
   outline-offset: 2px;
 }
-.dropdown-menu__trigger:active {
-  background-color: rgb(255 255 255 / 0.1);
-}
+
 .dropdown-menu__content,
 .dropdown-menu__sub-content {
-  min-width: 220px;
-  padding: 8px;
-  @apply bg-neutral-950 border border-neutral-900;
-  border-radius: 6px;
-  
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  outline: none;
+  @apply v-main border rounded-lg shadow-lg outline-none p-2 min-w-[220px];
   transform-origin: var(--kb-menu-content-transform-origin);
   animation: contentHide 250ms ease-in forwards;
 }
@@ -151,6 +88,7 @@ body {
 .dropdown-menu__sub-content[data-expanded] {
   animation: contentShow 250ms ease-out;
 }
+
 .dropdown-menu__item,
 .dropdown-menu__checkbox-item,
 .dropdown-menu__radio-item,
@@ -167,11 +105,13 @@ body {
   user-select: none;
   outline: none;
 }
+
 .dropdown-menu__sub-trigger[data-expanded] {
   background-color: hsl(204 94% 94%);
   color: hsl(201 96% 32%);
-  
+
 }
+
 .dropdown-menu__item[data-disabled],
 .dropdown-menu__checkbox-item[data-disabled],
 .dropdown-menu__radio-item[data-disabled],
@@ -180,6 +120,7 @@ body {
   opacity: 0.5;
   pointer-events: none;
 }
+
 .dropdown-menu__item[data-highlighted],
 .dropdown-menu__checkbox-item[data-highlighted],
 .dropdown-menu__radio-item[data-highlighted],
@@ -188,17 +129,20 @@ body {
   background-color: hsl(200 98% 39%);
   color: white;
 }
+
 .dropdown-menu__group-label {
   padding: 0 24px;
   font-size: 14px;
   line-height: 32px;
   color: hsl(240 4% 46%);
 }
+
 .dropdown-menu__separator {
   height: 1px;
   border-top: 1px solid hsl(240 6% 90%);
   margin: 6px;
 }
+
 .dropdown-menu__item-indicator {
   position: absolute;
   left: 0;
@@ -208,35 +152,84 @@ body {
   align-items: center;
   justify-content: center;
 }
+
 .dropdown-menu__item-right-slot {
   margin-left: auto;
   padding-left: 20px;
   font-size: 14px;
   @apply text-neutral-500
 }
-[data-highlighted] > .dropdown-menu__item-right-slot {
+
+[data-highlighted]>.dropdown-menu__item-right-slot {
   @apply text-white;
 }
+
 [data-disabled] .dropdown-menu__item-right-slot {
   @apply text-neutral-600;
 }
+
 @keyframes contentShow {
   from {
     opacity: 0;
     transform: scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 @keyframes contentHide {
   from {
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.96);
   }
+}
+
+
+* {
+  @apply border-[#1f1f1f];
+}
+
+.c-description {
+  @apply text-neutral-400
+}
+
+.v-main {
+  @apply bg-[#0f0f0f];
+}
+
+.v-hover-highlight {
+  @apply hover:bg-neutral-900 data-[selected=true]:bg-neutral-900
+}
+
+.v-el {
+  @apply bg-neutral-900 shadow-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-neutral-900 data-[active=true]:bg-neutral-800 data-[active=true]:text-white hover:text-white
+}
+
+/* components */
+.button-sm {
+  @apply v-el py-1 px-2 border text-xs rounded-lg disabled:cursor-not-allowed
+}
+
+.icon {
+  @apply text-neutral-500 p-2 rounded-lg border;
+}
+
+.tab-trigger {
+  @apply v-el m-2 p-2 rounded-lg border cursor-pointer text-neutral-500;
+}
+
+.divider {
+  @apply h-[1px] w-full border-b
+}
+
+.header {
+  @apply uppercase tracking-tight text-sm
 }
