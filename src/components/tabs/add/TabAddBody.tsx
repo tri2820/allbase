@@ -54,7 +54,7 @@ const views: Record<string, (props: any) => JSX.Element> = {
 
         <div class="flex flex-start space-x-2 ">
           <div
-            class="prose prose-invert text-white max-w-none flex-1 "
+            class="prose prose-invert prose-neutral text-white max-w-none flex-1 "
             innerHTML={html()}
           />
 

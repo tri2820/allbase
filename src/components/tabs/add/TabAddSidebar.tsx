@@ -20,8 +20,8 @@ export default function TabAddSidebar() {
   return (
     <div class="overflow-y-auto overflow-x-hidden flex-1">
 
-      <div class="flex items-center space-x-4">
-        <div class="header py-4 pl-6">apps</div>
+      <div class="flex items-center space-x-4 mx-4">
+        <div class="header py-4">apps</div>
         <div data-show={!isSearching()} class="flex-1 hidden data-[show=true]:block" />
         <div
           data-show={isSearching()}
@@ -72,7 +72,7 @@ export default function TabAddSidebar() {
                   setSelectedAppId(m.id);
                 }}
                 data-selected={selectedAppId() == m.id}
-                class="flex items-start cursor-pointer space-x-4 px-6 py-4 v-hover-highlight"
+                class="flex items-start cursor-pointer space-x-4 px-4 py-4 v-hover-highlight"
               >
                 <Icon m={m} size="md" />
 

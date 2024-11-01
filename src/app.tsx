@@ -10,12 +10,17 @@ import "@fontsource/poppins/900.css";
 import { Link, Meta, MetaProvider, Title } from "@solidjs/meta";
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { onMount, Suspense } from "solid-js";
 import "./app.css";
+import { test } from "./lib/compiler";
 
 
 
 export default function App() {
+
+  onMount(() => {
+    test()
+  })
 
   return (
     <Router
