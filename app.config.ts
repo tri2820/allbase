@@ -9,23 +9,19 @@ const compileServiceWorker = async (): Promise<void> => {
     console.log('Compiling TypeScript Service Worker...');
     try {
         await build({
-            // Specify the build options for the service worker
             build: {
                 rollupOptions: {
                     input: path.resolve('./src/service-worker.ts'),
                     output: {
-                        // Specify the output directory
-                        dir: path.resolve('./public'), // Output directory
-                        // Use entryFileNames to define the output file name
+                        dir: path.resolve('./public/sw'), // Output to the sw subdirectory within public
                         entryFileNames: 'service-worker.js', // Output file name
                     },
                 },
-                // This option ensures that polyfills are included
                 lib: {
                     entry: path.resolve('./src/service-worker.ts'),
                     name: 'ServiceWorker',
                     formats: ['iife'], // Use the IIFE format for the service worker
-                },
+                }
             },
             plugins: [
                 nodePolyfills(), // Add polyfills for Node.js core modules
