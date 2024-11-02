@@ -27,7 +27,7 @@ export default function App() {
       root={(props) => (
         <MetaProvider>
           <div class="Home">
-            <Title>AllBase - Power Up Collaboration</Title>
+            <Title>AllBase</Title>
             <Link rel="canonical" href="http://allbase.app/" />
           </div>
 

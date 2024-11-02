@@ -209,14 +209,14 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
 
 export const install = async (app: AppMeta) => {
   // await new Promise((resolve) => setTimeout(resolve, 1000));
-  sw().postMessage({
-    type: 'INSTALL_APP',
-    app_id: app.id,
-    git: 'https://github.com/tri2820/app-test',
-    dir: '/dist',
-    offline: false
-  });
+  // sw().postMessage({
+  //   type: 'INSTALL_APP',
+  //   app_id: app.id,
+  //   path: 'https://github.com/tri2820/allbase/tree/main/examples/three-cube/dist',
+  //   offline: false
+  // });
   // return;
+
 
   Sandbox.lockdown();
   const installation = {

@@ -9,7 +9,6 @@ export const sw: () => Omit<ServiceWorker, 'postMessage'> & {
 export type AppMessage = {
     type: 'INSTALL_APP',
     app_id: string,
-    git: string,
-    dir: string,
+    path: string,
     offline: boolean
 }
