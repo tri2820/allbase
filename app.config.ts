@@ -2,7 +2,7 @@ import { defineConfig } from "@solidjs/start/config";
 import path from 'path';
 import { Plugin } from "vinxi/dist/types/lib/vite-dev";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
-import { build } from 'vite'; // Import the build function from Vite
+import { build } from 'vite';
 
 // Compile the service worker using Vite's build process
 const compileServiceWorker = async (): Promise<void> => {
@@ -13,15 +13,16 @@ const compileServiceWorker = async (): Promise<void> => {
                 rollupOptions: {
                     input: path.resolve('./src/service-worker.ts'),
                     output: {
-                        dir: path.resolve('./public/sw'), // Output to the sw subdirectory within public
-                        entryFileNames: 'service-worker.js', // Output file name
+                        dir: path.resolve('./public'), // Output directly to public/
+                        entryFileNames: 'service-worker.js', // Set output filename
                     },
                 },
                 lib: {
                     entry: path.resolve('./src/service-worker.ts'),
                     name: 'ServiceWorker',
                     formats: ['iife'], // Use the IIFE format for the service worker
-                }
+                },
+                emptyOutDir: false, // Do not delete contents of public/
             },
             plugins: [
                 nodePolyfills(), // Add polyfills for Node.js core modules
@@ -51,7 +52,7 @@ const CompileTsServiceWorkerPlugin: Plugin = {
 export default defineConfig({
     vite: {
         plugins: [
-            nodePolyfills(),
+            // nodePolyfills(),
             CompileTsServiceWorkerPlugin,
         ],
     },

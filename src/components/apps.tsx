@@ -7,6 +7,7 @@ import {
   RunningTaskData
 } from "~/components/tasks";
 import { sw } from "~/global";
+import { extractAndSanitize } from "~/lib/compiler";
 import { Sandbox } from "~/lib/sandbox/sanbox";
 
 export type AppMeta = {
@@ -207,15 +208,43 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
 }
 
 
+
+
 export const install = async (app: AppMeta) => {
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   // sw().postMessage({
   //   type: 'INSTALL_APP',
   //   app_id: app.id,
-  //   path: 'https://github.com/tri2820/allbase/tree/main/examples/three-cube/dist',
+  //   index: 'https://github.com/tri2820/allbase/blob/main/examples/three-cube/index.html',
   //   offline: false
   // });
   // return;
+
+  // const index = 'https://github.com/tri2820/allbase/blob/main/examples/three-cube/index.html';
+  const index = 'http://localhost:5173/index.html';
+  const url = new URL(index);
+
+  console.log('url', url.toString());
+
+  // Check if the URL contains 'github.com'
+  if (url.hostname.includes('github.com')) {
+    url.searchParams.set('raw', 'true');
+  }
+
+  const proxyPath = `/proxy?url=${encodeURIComponent(url.toString())}`;
+  console.log('url', url.toString(), proxyPath);
+
+  try {
+    const response = await fetch(proxyPath);
+    const html = await response.text();
+    console.log('html', html)
+    const result = extractAndSanitize(html);
+    console.log('result', result);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+
+  return;
 
 
   Sandbox.lockdown();

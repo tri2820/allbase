@@ -31,13 +31,13 @@ const exampleHtml = `
     </body>
     </html>`;
 
-// Define types for head elements
+// Define types for head and body elements
 interface ScriptElement {
     src?: string;
     content?: string;
 }
 
-interface LinkElement {
+interface StylesheetElement {
     href: string;
 }
 
@@ -48,8 +48,16 @@ interface MetaElement {
 
 interface HeadElements {
     scripts: ScriptElement[];
-    links: LinkElement[];
+    stylesheets: StylesheetElement[];
     metas: MetaElement[];
+}
+
+interface ExtractedHTML {
+    body: {
+        scripts: ScriptElement[];
+        content: string; // To hold the sanitized body content
+    };
+    head: HeadElements;
 }
 
 function sanitizeHTML(dirtyHTML: string): string {
@@ -61,20 +69,20 @@ function sanitizeHTML(dirtyHTML: string): string {
     });
 }
 
-function extractAndSanitize(html: string): { headElements: HeadElements; sanitizedBody: string } {
+export function extractAndSanitize(html: string): ExtractedHTML {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
     // Initialize head elements structure
     const headElements: HeadElements = {
         scripts: [],
-        links: [],
+        stylesheets: [],
         metas: []
     };
 
-    // Extract <script> tags
-    const scripts = doc.head.getElementsByTagName('script');
-    for (const script of scripts) {
+    // Extract <script> tags from head
+    const headScripts = doc.head.getElementsByTagName('script');
+    for (const script of headScripts) {
         if (script.src) {
             headElements.scripts.push({ src: script.src });
         } else {
@@ -86,7 +94,7 @@ function extractAndSanitize(html: string): { headElements: HeadElements; sanitiz
     const links = doc.head.getElementsByTagName('link');
     for (const link of links) {
         if (link.rel === 'stylesheet') {
-            headElements.links.push({ href: link.href });
+            headElements.stylesheets.push({ href: link.href });
         }
     }
 
@@ -98,19 +106,35 @@ function extractAndSanitize(html: string): { headElements: HeadElements; sanitiz
         }
     }
 
+    // Extract <script> tags from body
+    const bodyScripts: ScriptElement[] = [];
+    const bodyScriptsElements = doc.body.getElementsByTagName('script');
+    for (const script of bodyScriptsElements) {
+        if (script.src) {
+            bodyScripts.push({ src: script.src });
+        } else {
+            bodyScripts.push({ content: script.innerHTML.trim() });
+        }
+        script.remove(); // Remove script from the body to prevent execution
+    }
+
     // Extract and sanitize body content
     const bodyContent = doc.body.innerHTML;
     const sanitizedBody = sanitizeHTML(bodyContent);
 
     return {
-        headElements,
-        sanitizedBody
+        body: {
+            scripts: bodyScripts,
+            content: sanitizedBody
+        },
+        head: headElements
     };
 }
 
 export const test = () => {
-    const { headElements, sanitizedBody } = extractAndSanitize(exampleHtml);
+    const { head, body } = extractAndSanitize(exampleHtml);
 
-    console.log('Head Elements:', headElements);
-    console.log('Sanitized Body:', sanitizedBody);
+    console.log('Head Elements:', head);
+    console.log('Body Scripts:', body.scripts);
+    console.log('Sanitized Body:', body.content);
 };

@@ -6,9 +6,10 @@ export const sw: () => Omit<ServiceWorker, 'postMessage'> & {
 } = () => navigator.serviceWorker.controller!;
 
 
-export type AppMessage = {
-    type: 'INSTALL_APP',
-    app_id: string,
-    path: string,
-    offline: boolean
-}
+export type AppMessage = any
+// {
+//     type: 'INSTALL_APP',
+//     app_id: string,
+//     index: string,
+//     offline: boolean
+// }

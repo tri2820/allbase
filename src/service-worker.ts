@@ -2,7 +2,6 @@
 export default null
 declare let self: ServiceWorkerGlobalScope
 
-import path from 'path';
 import localforage from 'localforage';
 import { AppMessage } from './global';
 const store = localforage.createInstance({
@@ -75,14 +74,6 @@ self.addEventListener('fetch', (event) => {
     }
 })
 
-
 // self.addEventListener("message", async (event) => {
-//     const message = event.data as AppMessage
-//     if (message.type == 'INSTALL_APP') {
-//         const indexPath = path.join(message.path, '/index.html');
-//         const response = await fetch(indexPath);
-//         console.log('response', response);
-//         console.log('indexPath', indexPath)
-//         // const fetch()
-//     }
+// const message = event.data as AppMessage;
 // });

@@ -13,7 +13,7 @@ const swReady = new Promise((resolve) => {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker
-            .register('/sw/service-worker.js') // Adjust the path as necessary
+            .register('/service-worker.js')
             .then(registration => {
                 console.log('Service Worker registered with scope:', registration.scope);
             })

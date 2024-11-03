@@ -1,29 +1,24 @@
 import type { APIEvent } from "@solidjs/start/server";
 
 export async function GET(e: APIEvent) {
-  const url = new URL(e.request.url);
-  const proxy_to = url.searchParams.get("url");
-
-  if (!proxy_to) {
-    return new Response("url param not found", { status: 400 });
-  }
-
   try {
-    // Fetch the proxied URL using the native Fetch API
+    const url = new URL(e.request.url);
+    const proxy_to = url.searchParams.get("url");
+    console.log('proxy_to', proxy_to);
+
+    if (!proxy_to) {
+      throw new Error("url param not found");
+    }
+
     const fetchResponse = await fetch(proxy_to);
 
     if (!fetchResponse.ok) {
-      // Handle response errors
-      return new Response("Failed to fetch the proxied URL", { status: fetchResponse.status });
+      throw new Error("Failed to fetch the proxied URL");
     }
 
-    // Create a new Response to forward the fetched data
-    const response = new Response(fetchResponse.body, {
-      status: fetchResponse.status,
-      headers: fetchResponse.headers,
+    return new Response(fetchResponse.body, {
+      status: fetchResponse.status
     });
-
-    return response;
 
   } catch (error) {
     console.error("Error fetching data:", error);
