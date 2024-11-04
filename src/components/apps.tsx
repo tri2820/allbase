@@ -1,13 +1,15 @@
 import { IconTypes } from "solid-icons";
-import { BsBugFill, BsChatFill, BsCursorFill, BsKanban, BsPassFill, BsPenFill, BsSafe, BsSafeFill } from "solid-icons/bs";
-import { createSignal } from "solid-js";
 import {
-  addTask,
-  markComplete,
-  RunningTaskData
-} from "~/components/tasks";
-import { sw } from "~/global";
-import { extractAndSanitize } from "~/lib/compiler";
+  BsBugFill,
+  BsChatFill,
+  BsCursorFill,
+  BsKanban,
+  BsPenFill,
+  BsSafeFill,
+} from "solid-icons/bs";
+import { createSignal } from "solid-js";
+import { addTask, markComplete, RunningTaskData } from "~/components/tasks";
+import { compile } from "~/lib/compiler";
 import { Sandbox } from "~/lib/sandbox/sanbox";
 
 export type AppMeta = {
@@ -19,6 +21,7 @@ export type AppMeta = {
   author_name: string;
   icon: IconTypes | string;
   backgroundColor: `#${string}`;
+  index: string;
 };
 
 export const [installations, setInstallations] = createSignal<Installation[]>(
@@ -26,8 +29,8 @@ export const [installations, setInstallations] = createSignal<Installation[]>(
 );
 export type Installation = {
   id: string;
-  sandbox: Sandbox;
   disabled: boolean;
+  onShadowRoot: (shadowRoot: ShadowRoot) => void
 };
 
 export const AppMetas: AppMeta[] = [
@@ -67,9 +70,10 @@ The communication hub is a central location for all your conversations. It's the
     author_name: "AllBase",
     icon: BsChatFill,
     categories: ["Communication", "Collaboration"],
-    backgroundColor: '#129aab'
+    backgroundColor: "#129aab",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
-
 
   {
     id: "0000-0000-0000-0012",
@@ -99,7 +103,9 @@ Plan and track projects with Kanban boards, Gantt charts, and real-time collabor
     author_name: "AllBase",
     icon: BsKanban,
     categories: ["Productivity", "Project Management"],
-    backgroundColor: '#fa3a4a'
+    backgroundColor: "#fa3a4a",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
   {
     id: "0000-0000-0000-0016",
@@ -127,7 +133,9 @@ A powerful note-taking tool with templates, rich text editing and real-time coll
     author_name: "AllBase",
     icon: BsPenFill,
     categories: ["Productivity", "Note-taking"],
-    backgroundColor: '#0ba749'
+    backgroundColor: "#0ba749",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
   {
     id: "0000-0000-0000-0002",
@@ -150,7 +158,9 @@ A simple test app for AllBase. Renders a Threejs cube.
     author_name: "AllBase",
     icon: BsBugFill,
     categories: ["Development", "Testing"],
-    backgroundColor: '#992bff'
+    backgroundColor: "#992bff",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
   {
     id: "0000-0000-0000-0014",
@@ -177,19 +187,24 @@ Safely store and manage your passwords. Auto-fill login credentials with a singl
     author_name: "AllBase",
     icon: BsSafeFill,
     categories: ["Security", "Password Management"],
-    backgroundColor: '#4a53fa'
+    backgroundColor: "#4a53fa",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
   {
     id: "0000-0000-0000-0015",
     name: "Whiteboard",
-    description: "A collaborative whiteboard app for team brainstorming and visual note-taking",
-    readme: "# Whiteboard\n\nWhiteboard is a collaborative digital canvas designed for teams and individuals to brainstorm, sketch, and share ideas. Perfect for project planning, flowcharts, and real-time team collaboration.\n\n## Features\n\n- Draw and erase\n- Type notes\n- Real-time collaboration\n- Sticky notes and shapes\n- Image import\n\n## How to Use\n\n1. Open the app and start or join a board.\n2. Click and drag to draw; use the eraser to remove items.\n3. Add text anywhere by clicking on the board.\n4. Organize ideas with sticky notes and shapes.\n5. Invite teammates to collaborate in real-time.\n\n---\n\nCreated by AllBase",
+    description:
+      "A collaborative whiteboard app for team brainstorming and visual note-taking",
+    readme:
+      "# Whiteboard\n\nWhiteboard is a collaborative digital canvas designed for teams and individuals to brainstorm, sketch, and share ideas. Perfect for project planning, flowcharts, and real-time team collaboration.\n\n## Features\n\n- Draw and erase\n- Type notes\n- Real-time collaboration\n- Sticky notes and shapes\n- Image import\n\n## How to Use\n\n1. Open the app and start or join a board.\n2. Click and drag to draw; use the eraser to remove items.\n3. Add text anywhere by clicking on the board.\n4. Organize ideas with sticky notes and shapes.\n5. Invite teammates to collaborate in real-time.\n\n---\n\nCreated by AllBase",
     author_name: "AllBase",
     icon: BsCursorFill,
     categories: ["Productivity", "Collaboration", "Notes"],
-    backgroundColor: "#fd6005"
-  }
-
+    backgroundColor: "#fd6005",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+  },
 ];
 
 export const [selectedAppId, setSelectedAppId] = createSignal<
@@ -207,54 +222,136 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
   };
 }
 
-
-
-
 export const install = async (app: AppMeta) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  // sw().postMessage({
-  //   type: 'INSTALL_APP',
-  //   app_id: app.id,
-  //   index: 'https://github.com/tri2820/allbase/blob/main/examples/three-cube/index.html',
-  //   offline: false
-  // });
-  // return;
 
-  // const index = 'https://github.com/tri2820/allbase/blob/main/examples/three-cube/index.html';
-  const index = 'http://localhost:5173/index.html';
+  let resolvePath: (relativePath: string) => string;
+
+  // const index = app.index;
+  const index = "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html";
   const url = new URL(index);
 
-  console.log('url', url.toString());
+  const segments = url.pathname.split("/");
+  const indexFile = segments.pop();
 
-  // Check if the URL contains 'github.com'
-  if (url.hostname.includes('github.com')) {
-    url.searchParams.set('raw', 'true');
+  if (!indexFile) {
+    throw new Error("No index file found");
   }
 
-  const proxyPath = `/proxy?url=${encodeURIComponent(url.toString())}`;
-  console.log('url', url.toString(), proxyPath);
+  const folderUrl = `${url.origin}${segments.join("/")}/`;
+  console.log("folderUrl", folderUrl);
+  console.log('indexFile', indexFile);
 
+  // If the host is github.com
+  // Modify the URL to include the raw parameter 
+  if (url.hostname === "github.com") {
+    // WARNING: Only works for root-relative paths
+    resolvePath = (relativePath: string) => {
+      if (relativePath.startsWith("/")) relativePath = relativePath.slice(1);
+      console.log('called with', relativePath);
+      const url = new URL(relativePath, folderUrl);
+      url.searchParams.set("raw", "true");
+      const absolutePath = url.toString();
+      console.log('return', absolutePath, folderUrl);
+      return absolutePath;
+    }
+  }
+  // ... other hosts
+  // Fallback
+  else {
+    resolvePath = (relativePath: string) => {
+      if (relativePath.startsWith("/")) relativePath = relativePath.slice(1);
+      const url = new URL(relativePath, folderUrl);
+      return url.toString();
+    }
+
+  }
+
+  const indexPath = resolvePath(indexFile);
+  const proxyPath = `/proxy?url=${encodeURIComponent(indexPath)}`;
+  let compiledResult: ReturnType<typeof compile>;
   try {
     const response = await fetch(proxyPath);
     const html = await response.text();
-    console.log('html', html)
-    const result = extractAndSanitize(html);
-    console.log('result', result);
+    compiledResult = compile(html);
+    console.log("Compiled result:", compiledResult, html, proxyPath);
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
+    return;
   }
-
-  return;
 
 
   Sandbox.lockdown();
+  const sandbox = new Sandbox({
+    id: app.id,
+  });
+
+
+  const onShadowRoot = (shadowRoot: ShadowRoot) => {
+    sandbox.setProxyOnShadowRoot(shadowRoot);
+    sandbox.setDistortion({
+      get: (obj) => {
+        if (obj == document.body) {
+          throw new Error('document.body is not accessible')
+        }
+
+        if (obj == document.getElementById) {
+          return {
+            ok: false,
+            value: (...args: any[]) => {
+              return sandbox.getShadowRootProxy()!.getElementById(
+                // @ts-ignore
+                ...args
+              )
+            }
+          }
+        }
+
+        return {
+          ok: true,
+          value: undefined
+        }
+      }
+    })
+
+    console.log('set innerHTML');
+    shadowRoot.innerHTML = compiledResult.body;
+
+
+    compiledResult.stylesheets.forEach(async (stylesheet) => {
+      const styleElement = document.createElement('style');
+      if (stylesheet.href) {
+        console.log(stylesheet.href);
+        const absolutePath = resolvePath(stylesheet.href);
+        const proxyPath = `/proxy?url=${encodeURIComponent(absolutePath)}`;
+        const response = await fetch(proxyPath);
+        styleElement.textContent = await response.text();
+      } else {
+        styleElement.textContent = stylesheet.content;
+      }
+      shadowRoot.appendChild(styleElement);
+    });
+
+    compiledResult.scripts.forEach(async (script) => {
+      let js: string;
+      if (script.src) {
+        const absolutePath = resolvePath(script.src);
+        const proxyPath = `/proxy?url=${encodeURIComponent(absolutePath)}`;
+        const response = await fetch(proxyPath);
+        js = await response.text();
+      } else {
+        js = script.content;
+      }
+
+      sandbox.evaluate(js);
+    })
+  }
+
   const installation = {
     id: app.id,
     disabled: false,
-    sandbox: new Sandbox({
-      id: app.id,
-    }),
+    onShadowRoot,
   };
+
   setInstallations([...installations(), installation]);
 };
 

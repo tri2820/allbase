@@ -31,33 +31,28 @@ const exampleHtml = `
     </body>
     </html>`;
 
+type RelativePath = string;
 // Define types for head and body elements
 interface ScriptElement {
-    src?: string;
-    content?: string;
-}
-
-interface StylesheetElement {
-    href: string;
-}
-
-interface MetaElement {
-    name: string;
+    src: RelativePath | null;
     content: string;
 }
 
-interface HeadElements {
-    scripts: ScriptElement[];
-    stylesheets: StylesheetElement[];
-    metas: MetaElement[];
+interface StylesheetElement {
+    href: RelativePath | null;
+    content: string;
+}
+
+interface MetaElement {
+    name: RelativePath;
+    content: string | null;
 }
 
 interface ExtractedHTML {
-    body: {
-        scripts: ScriptElement[];
-        content: string; // To hold the sanitized body content
-    };
-    head: HeadElements;
+    scripts: ScriptElement[]; // Combined scripts from both head and body
+    stylesheets: StylesheetElement[];
+    metas: MetaElement[];
+    body: string;
 }
 
 function sanitizeHTML(dirtyHTML: string): string {
@@ -69,72 +64,42 @@ function sanitizeHTML(dirtyHTML: string): string {
     });
 }
 
-export function extractAndSanitize(html: string): ExtractedHTML {
+
+export function compile(html: string): ExtractedHTML {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
-    // Initialize head elements structure
-    const headElements: HeadElements = {
-        scripts: [],
-        stylesheets: [],
-        metas: []
-    };
 
-    // Extract <script> tags from head
-    const headScripts = doc.head.getElementsByTagName('script');
-    for (const script of headScripts) {
-        if (script.src) {
-            headElements.scripts.push({ src: script.src });
-        } else {
-            headElements.scripts.push({ content: script.innerHTML.trim() });
-        }
-    }
+    const stylesheets =
+        [...doc.head.getElementsByTagName('link')]
+            .map(e => ({ href: e.getAttribute('href'), content: e.innerHTML.trim() }))
 
-    // Extract <link> tags (CSS)
-    const links = doc.head.getElementsByTagName('link');
-    for (const link of links) {
-        if (link.rel === 'stylesheet') {
-            headElements.stylesheets.push({ href: link.href });
-        }
-    }
+    const metas =
+        [...doc.head.getElementsByTagName('meta')]
+            .map(e => {
+                const name = e.getAttribute('name');
+                if (!name) return;
+                return { name, content: e.getAttribute('content') }
+            }
+            )
+            .filter(x => !!x);
 
-    // Extract <meta> tags
-    const metas = doc.head.getElementsByTagName('meta');
-    for (const meta of metas) {
-        if (meta.name) {
-            headElements.metas.push({ name: meta.name, content: meta.content });
-        }
-    }
+    const scripts =
+        [...doc.head.getElementsByTagName('script'),
+        ...doc.body.getElementsByTagName('script')
+        ]
+            .map(e => ({ src: e.getAttribute('src'), content: e.innerHTML.trim() }));
 
-    // Extract <script> tags from body
-    const bodyScripts: ScriptElement[] = [];
-    const bodyScriptsElements = doc.body.getElementsByTagName('script');
-    for (const script of bodyScriptsElements) {
-        if (script.src) {
-            bodyScripts.push({ src: script.src });
-        } else {
-            bodyScripts.push({ content: script.innerHTML.trim() });
-        }
-        script.remove(); // Remove script from the body to prevent execution
-    }
+
 
     // Extract and sanitize body content
     const bodyContent = doc.body.innerHTML;
-    const sanitizedBody = sanitizeHTML(bodyContent);
+    const body = sanitizeHTML(bodyContent);
 
     return {
-        body: {
-            scripts: bodyScripts,
-            content: sanitizedBody
-        },
-        head: headElements
+        scripts,
+        stylesheets,
+        metas,
+        body
     };
 }
-
-export const test = () => {
-    const { head, body } = extractAndSanitize(exampleHtml);
-
-    console.log('Head Elements:', head);
-    console.log('Body Scripts:', body.scripts);
-    console.log('Sanitized Body:', body.content);
-};

@@ -8,11 +8,9 @@ import * as THREE from "three";
 const app = document.getElementById("app")!;
 
 (async () => {
-
   const x = await fetch('https://example.com')
   const y = await x.text()
-  console.log('text', y)
-
+  console.log('test fetching', y)
 })()
 const canvas = document.createElement("canvas");
 app.appendChild(canvas);

@@ -16,42 +16,8 @@ export default function TabGenericBody(props: { app_id: string }) {
 
   let shadow: HTMLDivElement;
   onMount(async () => {
-    // @ts-ignore
-    window.s = installation.sandbox;
     const shadowRoot = shadow.attachShadow({ mode: "closed" });
-    installation.sandbox.setProxyOnShadowRoot(shadowRoot);
-    installation.sandbox.setDistortion({
-      get: (obj) => {
-        if (obj == document.body) {
-          throw new Error('document.body is not accessible')
-        }
-
-        if (obj == document.getElementById) {
-          return {
-            ok: false,
-            value: (...args: any[]) => {
-              return installation.sandbox.getShadowRootProxy()!.getElementById(
-                // @ts-ignore
-                ...args
-              )
-            }
-          }
-        }
-
-        return {
-          ok: true,
-          value: undefined
-        }
-      }
-    })
-
-
-    // create index.html
-    const div = document.createElement("div");
-    div.id = `app`;
-    shadowRoot.appendChild(div);
-    console.log('shadowRoot', shadowRoot)
-
+    installation.onShadowRoot(shadowRoot);
 
 
     // const style = document.createElement('style');
@@ -82,5 +48,5 @@ export default function TabGenericBody(props: { app_id: string }) {
     console.log("me destroyed!");
   });
 
-  return <div ref={shadow!} class="w-full h-full" />;
+  return <div ref={shadow!} id="body" class="w-full h-full" />;
 }
