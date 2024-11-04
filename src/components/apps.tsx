@@ -6,6 +6,7 @@ import {
   BsKanban,
   BsPenFill,
   BsSafeFill,
+  BsTable,
 } from "solid-icons/bs";
 import { createSignal } from "solid-js";
 import { addTask, markComplete, RunningTaskData } from "~/components/tasks";
@@ -137,10 +138,58 @@ A powerful note-taking tool with templates, rich text editing and real-time coll
     index:
       "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
+
+  {
+    id: "0000-0000-0000-0014",
+    name: "Table",
+    description:
+      "Create and edit tables with formulas and formatting. Collaborate with others in real-time.",
+    readme: `# Table
+
+Create and edit tables with formulas and formatting. Collaborate with others in real-time.
+
+## Features
+
+- Create and edit tables
+- Formulas
+- Formatting
+- Real-time collaboration
+
+## How to use
+
+1. Open the app
+2. Click on the add button to add a new table
+3. Type in the table name
+4. Click save to save the table
+5. Click on a table to edit it
+6. Type in a formula to calculate values
+7. Use the formatting options to change the appearance of the table
+`,
+    author_name: "AllBase",
+    icon: BsTable,
+    categories: ["Productivity", "Table"],
+    backgroundColor: "#4a53fa",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+  },
+  {
+    id: "0000-0000-0000-0015",
+    name: "Whiteboard",
+    description:
+      "A collaborative whiteboard app for team brainstorming and visual note-taking",
+    readme:
+      "# Whiteboard\n\nWhiteboard is a collaborative digital canvas designed for teams and individuals to brainstorm, sketch, and share ideas. Perfect for project planning, flowcharts, and real-time team collaboration.\n\n## Features\n\n- Draw and erase\n- Type notes\n- Real-time collaboration\n- Sticky notes and shapes\n- Image import\n\n## How to Use\n\n1. Open the app and start or join a board.\n2. Click and drag to draw; use the eraser to remove items.\n3. Add text anywhere by clicking on the board.\n4. Organize ideas with sticky notes and shapes.\n5. Invite teammates to collaborate in real-time.\n\n---\n\nCreated by AllBase",
+    author_name: "AllBase",
+    icon: BsCursorFill,
+    categories: ["Productivity", "Collaboration", "Notes"],
+    backgroundColor: "#fd6005",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+  },
   {
     id: "0000-0000-0000-0002",
-    name: "Threejs Cube",
-    description: "A simple test app for AllBase. Renders a Threejs cube.",
+    name: "Test app",
+    description: "A simple test app for AllBase. Renders a 3D cube.",
     readme: `# Threejs Cube
 
 A simple test app for AllBase. Renders a Threejs cube.
@@ -159,49 +208,6 @@ A simple test app for AllBase. Renders a Threejs cube.
     icon: BsBugFill,
     categories: ["Development", "Testing"],
     backgroundColor: "#992bff",
-    index:
-      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
-  },
-  {
-    id: "0000-0000-0000-0014",
-    name: "Password Vault",
-    description:
-      "Safely store and manage your passwords. Auto-fill login credentials with a single click.",
-    readme: `# Password Vault
-
-Safely store and manage your passwords. Auto-fill login credentials with a single click.
-
-## Features
-
-- Store passwords
-- Auto-fill login credentials
-
-## How to use
-
-1. Open the app
-2. Click on the add button to add a new password
-3. Type in the password name and password
-4. Click save to save the password
-5. Click on a password to auto-fill the login credentials
-`,
-    author_name: "AllBase",
-    icon: BsSafeFill,
-    categories: ["Security", "Password Management"],
-    backgroundColor: "#4a53fa",
-    index:
-      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
-  },
-  {
-    id: "0000-0000-0000-0015",
-    name: "Whiteboard",
-    description:
-      "A collaborative whiteboard app for team brainstorming and visual note-taking",
-    readme:
-      "# Whiteboard\n\nWhiteboard is a collaborative digital canvas designed for teams and individuals to brainstorm, sketch, and share ideas. Perfect for project planning, flowcharts, and real-time team collaboration.\n\n## Features\n\n- Draw and erase\n- Type notes\n- Real-time collaboration\n- Sticky notes and shapes\n- Image import\n\n## How to Use\n\n1. Open the app and start or join a board.\n2. Click and drag to draw; use the eraser to remove items.\n3. Add text anywhere by clicking on the board.\n4. Organize ideas with sticky notes and shapes.\n5. Invite teammates to collaborate in real-time.\n\n---\n\nCreated by AllBase",
-    author_name: "AllBase",
-    icon: BsCursorFill,
-    categories: ["Productivity", "Collaboration", "Notes"],
-    backgroundColor: "#fd6005",
     index:
       "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },

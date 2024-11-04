@@ -1,32 +1,65 @@
-# SolidStart
+# AllBase
 
-Everything you need to build a Solid project, powered by [`solid-start`](https://start.solidjs.com);
+![banner](/public/banner.svg)
 
-## Creating a project
+## An infinitely extensible team platform
 
-```bash
-# create a new project in the current directory
-npm init solid@latest
+👋 Welcome to AllBase, a modern WorkOS that can be extended with third-party apps—just like VS Code!
 
-# create a new project in my-app
-npm init solid@latest my-app
-```
+Say goodbye to app overload and hello to a seamless, integrated experience.
 
-## Developing
+![screenshot](/public/screenshot.svg)
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+## Why AllBase?
 
-```bash
-npm run dev
+Teams often struggle with **SaaS waste** and **data silos**, making it difficult to stay organized and efficient. AllBase centralizes all your essential applications in one place, increasing productivity and reducing headaches.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+## Features
 
-## Building
+### For Teams:
 
-Solid apps are built with _presets_, which optimise your project for deployment to different environments.
+- All Your Apps in One Place
+- Real-Time Collaboration
+- Adaptable to Any Workflow
 
-By default, `npm run build` will generate a Node app that you can run with `npm start`. To use a different preset, add it to the `devDependencies` in `package.json` and specify in your `app.config.js`.
+### For Developers:
 
-## This project was created with the [Solid CLI](https://solid-cli.netlify.app)
+- **Built with Familiar Technology**: Vanilla JS, React, Vite, and more. We focus on providing a great developer experience. For more information, see [Build Your First App](./docs/BUILD_YOUR_FIRST_APP.md).
+- **Pre-Made Modules**: Think authentication, real-time features, data management, and caching.
+- **Build Internal Tools Easily**: Have an itch? Learn to create your own solutions in just one day.
+- **Marketplace**: Launch and validate your apps where your users are.
+
+## Performance
+
+Third-party apps are **secured** and **lightning fast**. Each app runs in an isolated sandbox with limited access to the DOM and Web APIs. They are given the same level of performance and accessibility as AllBase itself.
+
+> [!IMPORTANT]  
+> AllBase is still a work in progress. The security layer is implemented but has not safeguarded all Web APIs.
+
+## Proudly Open Source
+
+AllBase is an open-source project. We value contributions and feedback. Join our community and help us shape the future of collaborative work!
+
+## Getting Started
+
+1. **Installation**:
+
+   ```sh
+   # Your installation commands go here
+   ```
+
+2. **Usage**:
+
+   ```sh
+   # Basic usage instructions go here
+   ```
+
+3. **Contributing**:
+
+   ```sh
+   # Guidelines for contributing to the project go here
+   ```
+
+## Support
+
+For any questions or support, please feel free to reach out via **vantri@duck.com**.

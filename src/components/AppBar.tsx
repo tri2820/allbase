@@ -1,5 +1,5 @@
 import { DropdownMenu } from "@kobalte/core/dropdown-menu";
-import { BsActivity, BsPersonFill, BsPlusLg } from "solid-icons/bs";
+import { BsActivity, BsBell, BsBellFill, BsPersonFill, BsPlusLg } from "solid-icons/bs";
 import {
   VsLoading,
   VsPassFilled
@@ -76,21 +76,21 @@ export default function AppBar() {
           </Show>
 
           <DropdownMenu.Icon class=" flex items-center justify-center" as="div">
-            <BsActivity class="w-6 h-6" />
+            <BsBellFill class="w-6 h-6" />
           </DropdownMenu.Icon>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>
           <DropdownMenu.Content class="dropdown-menu__content max-h-60 overflow-auto nice-scrollbar">
             <div class="header c-description px-4  py-2">
-              Activities
+              Notifications
             </div>
 
             <Show
               when={sortedTasks().length > 0}
               fallback={
                 <div class="p-2 px-4 ">
-                  <span class="text-sm">No tasks running</span>
+                  <span class="text-sm">All clear—no new notifications!</span>
                 </div>
               }
             >
