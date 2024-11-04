@@ -1,10 +1,23 @@
-# AllBase - The dream workOS for your team
+<p align="center">
+  <img src="/public/banner.svg"/>
+</p>
 
-![banner](/public/banner.svg)
+#
 
-## 🦾 AllBase can be extended with third-party apps—just like VS Code!
+<p align="center">
+  A modern and powerful workOS for your team.<br>
+  AllBase can be extended with third-party apps—just like VS Code!
+</p>
 
-![screenshot](/public/screenshot.svg)
+#
+
+<br />
+
+<p align="center">
+  <img src="/public/screenshot.svg"/>
+</p>
+
+#
 
 ## Why AllBase?
 
