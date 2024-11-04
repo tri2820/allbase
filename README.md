@@ -1,18 +1,16 @@
-# AllBase
+# AllBase - The dream workOS for your team
 
 ![banner](/public/banner.svg)
 
-## An infinitely extensible team platform
-
-👋 Welcome to AllBase, a modern WorkOS that can be extended with third-party apps—just like VS Code!
-
-Say goodbye to app overload and hello to a seamless, integrated experience.
+## 🦾 AllBase can be extended with third-party apps—just like VS Code!
 
 ![screenshot](/public/screenshot.svg)
 
 ## Why AllBase?
 
-Teams often struggle with **SaaS waste** and **data silos**, making it difficult to stay organized and efficient. AllBase centralizes all your essential applications in one place, increasing productivity and reducing headaches.
+AllBase fits any workflow, making it easy for teams to stay organized. It brings all your important apps together in one place, helping you work better and faster.
+
+No more wasting money on unnecessary software or dealing with data silos!
 
 ## Features
 
@@ -26,8 +24,7 @@ Teams often struggle with **SaaS waste** and **data silos**, making it difficult
 
 - **Built with Familiar Technology**: Vanilla JS, React, Vite, and more. We focus on providing a great developer experience. For more information, see [Build Your First App](./docs/BUILD_YOUR_FIRST_APP.md).
 - **Pre-Made Modules**: Think authentication, real-time features, data management, and caching.
-- **Build Internal Tools Easily**: Have an itch? Learn to create your own solutions in just one day.
-- **Marketplace**: Launch and validate your apps where your users are.
+- **Create Internal Tools Easily**: Have an itch? Learn to create your own solutions in just 30 minutes.
 
 ## Performance
 
@@ -36,29 +33,25 @@ Third-party apps are **secured** and **lightning fast**. Each app runs in an iso
 > [!IMPORTANT]  
 > AllBase is still a work in progress. The security layer is implemented but has not safeguarded all Web APIs.
 
+## Getting Started
+
+1. **Development**:
+
+   ```sh
+   bun i # or npm i
+   bun dev
+   ```
+
+2. **Production**:
+
+   ```sh
+   bun run build
+   # your app is ready to serve in the output folder
+   ```
+
 ## Proudly Open Source
 
 AllBase is an open-source project. We value contributions and feedback. Join our community and help us shape the future of collaborative work!
-
-## Getting Started
-
-1. **Installation**:
-
-   ```sh
-   # Your installation commands go here
-   ```
-
-2. **Usage**:
-
-   ```sh
-   # Basic usage instructions go here
-   ```
-
-3. **Contributing**:
-
-   ```sh
-   # Guidelines for contributing to the project go here
-   ```
 
 ## Support
 
