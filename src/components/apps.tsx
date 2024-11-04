@@ -223,12 +223,8 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
 }
 
 export const install = async (app: AppMeta) => {
-
   let resolvePath: (relativePath: string) => string;
-
-  // const index = app.index;
-  const index = "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html";
-  const url = new URL(index);
+  const url = new URL(app.index);
 
   const segments = url.pathname.split("/");
   const indexFile = segments.pop();
