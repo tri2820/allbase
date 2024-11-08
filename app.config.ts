@@ -1,40 +1,32 @@
+import fs from 'fs/promises';
+
 import { defineConfig } from "@solidjs/start/config";
+import { build } from 'esbuild';
 import path from 'path';
 import { Plugin } from "vinxi/dist/types/lib/vite-dev";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
-import { build } from 'vite';
 
-// Compile the service worker using Vite's build process
-const compileServiceWorker = async (): Promise<void> => {
+const tmpOutputPath = path.resolve('./tmp/service-worker.js');
+const publicOutputPath = path.resolve('./public/service-worker.js');
+
+const compileServiceWorker = async () => {
     console.log('Compiling TypeScript Service Worker...');
     try {
         await build({
-            build: {
-                rollupOptions: {
-                    input: path.resolve('./src/service-worker.ts'),
-                    output: {
-                        dir: path.resolve('./public'), // Output directly to public/
-                        entryFileNames: 'service-worker.js', // Set output filename
-                    },
-                },
-                lib: {
-                    entry: path.resolve('./src/service-worker.ts'),
-                    name: 'ServiceWorker',
-                    formats: ['iife'], // Use the IIFE format for the service worker
-                },
-                emptyOutDir: false, // Do not delete contents of public/
-            },
-            plugins: [
-                nodePolyfills(), // Add polyfills for Node.js core modules
-            ],
+            entryPoints: ['./src/service-worker.ts'],
+            bundle: true,
+            outfile: tmpOutputPath, // Adjust output path
         });
-        console.log('Service worker compiled successfully with polyfills.');
+        console.log('Service worker compiled successfully.');
+
+
     } catch (error) {
         console.error('Error compiling service worker:', error);
     }
+
+    await fs.copyFile(tmpOutputPath, publicOutputPath)
 };
 
-const CompileTsServiceWorkerPlugin: Plugin = {
+const CompileTsServiceWorkerPlugin: Plugin = ({
     name: 'compile-typescript-service-worker',
     async buildStart() {
         // Compile the service worker at the start of the build
@@ -47,13 +39,13 @@ const CompileTsServiceWorkerPlugin: Plugin = {
             await compileServiceWorker();
         }
     },
-};
+});
 
 export default defineConfig({
     vite: {
         plugins: [
-            // nodePolyfills(),
-            CompileTsServiceWorkerPlugin,
-        ],
-    },
+            CompileTsServiceWorkerPlugin
+        ]
+    }
 });
+
