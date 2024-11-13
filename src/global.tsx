@@ -1,6 +1,7 @@
 import { createSignal } from "solid-js";
 import useOverlay from "./components/UseOverlay";
 import { AuthResult } from "@instantdb/core/dist/module/clientTypes";
+import { Profile } from "./components/database";
 
 export const bodyOverlay = useOverlay();
 export const sw: () => Omit<ServiceWorker, 'postMessage'> & {
@@ -10,6 +11,7 @@ export const sw: () => Omit<ServiceWorker, 'postMessage'> & {
 export const [auth, setAuth] = createSignal<AuthResult>();
 // Make sure only used after user is logged in
 export const user = () => auth()?.user;
+export const [profile, setProfile] = createSignal<Profile>();
 
 export type AppMessage = any
 // {

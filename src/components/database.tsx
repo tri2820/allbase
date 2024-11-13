@@ -1,20 +1,7 @@
 import {
-    Exactly,
     init,
-    InstantClient,
-    Query,
-    SubscriptionState,
+    InstantClient
 } from "@instantdb/core";
-import {
-    Accessor,
-    batch,
-    children,
-    createEffect,
-    createSignal,
-    onCleanup,
-    Setter,
-    untrack,
-} from "solid-js";
 
 
 export interface Channel {
@@ -40,9 +27,16 @@ export interface NoteDetail {
     state: string;
 }
 
+type Contact = {
+    type: 'mobile',
+    value: string
+}
 export interface Profile {
     id: string;
     name: string;
+    role: string;
+    description: string;
+    contacts: Contact[];
     avatar_url: string;
 }
 
@@ -66,10 +60,10 @@ type RoomSchema = any;
 // };
 
 type Schema = {
-    channels: Channel;
-    messages: Message;
-    notes: Note;
-    noteDetails: NoteDetail;
+    // channels: Channel;
+    // messages: Message;
+    // notes: Note;
+    // noteDetails: NoteDetail;
     profiles: Profile;
 };
 

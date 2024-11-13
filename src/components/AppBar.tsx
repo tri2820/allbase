@@ -71,8 +71,8 @@ export default function AppBar() {
       >
         <DropdownMenu.Trigger class="dropdown-menu__trigger relative">
           <Show when={newTaskHint()}>
-            <span class="absolute z-[50] -right-2 -top-2 h-4 w-4 rounded-full bg-sky-400" />
-            <span class="absolute z-[50] blur -right-2 -top-2 h-4 w-4 rounded-full bg-sky-400 opacity-50 "></span>
+            <span class="absolute z-[50] -right-2 -top-2 h-4 w-4 rounded-full bg-blue-400" />
+            <span class="absolute z-[50] blur -right-2 -top-2 h-4 w-4 rounded-full bg-blue-400 opacity-50 "></span>
           </Show>
 
           <DropdownMenu.Icon class=" flex items-center justify-center" as="div">

@@ -1,11 +1,11 @@
-import { JSX, onMount } from "solid-js";
-import { auth, setAuth } from "~/global";
+import { createEffect, JSX, onCleanup, onMount } from "solid-js";
+import { auth, setAuth, setProfile } from "~/global";
 import { db } from "./database";
 
 export function Auth(props: { children?: JSX.Element }) {
 
 
-    // const [profile, setProfile] = createSignal();
+
 
     onMount(() => {
         // const query = { members: {} };
@@ -16,13 +16,37 @@ export function Auth(props: { children?: JSX.Element }) {
         //   console.log('result', result)
         // });
 
-        db.subscribeAuth((auth) => {
+        db.subscribeAuth(async (auth) => {
             console.log('auth', auth)
             setAuth(auth);
         });
-
-
     })
+
+    createEffect(() => {
+        const user_id = auth()?.user?.id
+        if (!user_id) {
+            setProfile()
+            return;
+        }
+
+        const unsubcribe = db.subscribeQuery({
+            profiles: {
+                $: {
+                    where: {
+                        id: user_id
+                    }
+                }
+            }
+        }, (result) => {
+            console.log('profile', result)
+            setProfile(result.data?.profiles[0])
+        });
+
+        onCleanup(() => {
+            unsubcribe()
+        })
+    })
+
 
     if (auth()) {
         return (

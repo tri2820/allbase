@@ -194,7 +194,7 @@ The Inventory Management app simplifies stock tracking and helps businesses avoi
     categories: ["Inventory", "Operations"],
     author_name: "AllBase",
     icon: BsBoxes,
-    backgroundColor: "#67a39a",
+    backgroundColor: "#ac39ac",
     index: "https://github.com/tri2820/allbase/blob/main/examples/inventory-management/dist/index.html",
   },
   {
@@ -324,7 +324,7 @@ The Expense Tracker app enables businesses to record, categorize, and monitor ex
     categories: ["Finance", "Expense Management"],
     author_name: "AllBase",
     icon: BsWalletFill,
-    backgroundColor: "#ac39ac",
+    backgroundColor: "#3eb57a",
     index: "https://github.com/tri2820/allbase/blob/main/examples/expense-tracker/dist/index.html",
   },
   {
