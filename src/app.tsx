@@ -12,7 +12,7 @@ import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import "./app.css";
-
+import { Auth } from "./components/Auth";
 
 
 export default function App() {
@@ -26,7 +26,11 @@ export default function App() {
             <Link rel="canonical" href="http://allbase.app/" />
           </div>
 
-          <Suspense>{props.children}</Suspense>
+          <Suspense>
+            <Auth>
+              {props.children}
+            </Auth>
+          </Suspense>
         </MetaProvider>
 
       )}

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@fontsource/poppins": "^5.1.0",
+    "@instantdb/core": "^0.14.29",
     "@kobalte/core": "^0.13.7",
     "@kobalte/tailwindcss": "^0.9.0",
     "@solidjs/meta": "^0.29.4",
