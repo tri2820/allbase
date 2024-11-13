@@ -4,7 +4,7 @@ import { Dynamic } from "solid-js/web";
 import {
   installationOf,
 
-  AppMetas,
+  appMetas,
   mkButton,
   AppMeta,
   selectedAppId,
@@ -24,15 +24,18 @@ const views: Record<string, (props: any) => JSX.Element> = {
         <div class="flex items-start space-x-4">
           <div class="flex-none">{icon()}</div>
           <div class="flex-1">
-            <div class="py-2 space-y-1">
+            <div class="py-2 space-y-0.5">
               <div class="font-bold text-2xl">{props.app.name}</div>
-              <div class="line-clamp-1 c-description">
+
+              <div class="c-description">{props.app.description}</div>
+              <div class="line-clamp-1 c-description !text-blue-500">
                 {props.app.author_name}
               </div>
             </div>
-            <div class="c-description">{props.app.description}</div>
 
-            <div class="flex items-center space-x-2 py-2">
+
+
+            <div class="flex items-center space-x-2">
               <Show
                 fallback={mkButton("install")(props.app)}
                 when={installationOf(props.app.id)}
@@ -51,26 +54,24 @@ const views: Record<string, (props: any) => JSX.Element> = {
         </div>
 
         <div class="divider my-4" />
+        <div class="flex flex-wrap gap-2">
+          <For each={props.app.categories}>
+            {(e) => (
+              <div class="border  px-2 py-1 text-sm">
+                {e}
+              </div>
+            )}
+          </For>
+        </div>
 
+        <div class="divider my-4" />
         <div class="flex flex-start space-x-2 ">
           <div
             class="prose prose-invert prose-neutral text-white max-w-none flex-1 "
             innerHTML={html()}
           />
 
-          <div class="flex-none w-40 border-l  p-2 ">
-            <div class="uppercase tracking-tight text-sm py-4">Categories</div>
 
-            <div class="flex flex-wrap gap-2">
-              <For each={props.app.categories}>
-                {(e) => (
-                  <div class="border  px-2 py-1 text-sm">
-                    {e}
-                  </div>
-                )}
-              </For>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -78,7 +79,7 @@ const views: Record<string, (props: any) => JSX.Element> = {
 };
 
 export default function TabAddBody() {
-  const app = () => AppMetas.find((e) => e.id == selectedAppId());
+  const app = () => appMetas.find((e) => e.id == selectedAppId());
 
   return (
     <div class="p-6  flex-1">

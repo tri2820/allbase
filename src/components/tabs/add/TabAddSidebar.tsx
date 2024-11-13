@@ -3,7 +3,7 @@ import { createSignal, onMount } from "solid-js";
 import { For } from "solid-js/web";
 import {
   installationOf,
-  AppMetas,
+  appMetas,
   mkButton,
   selectedAppId,
   setSelectedAppId,
@@ -14,7 +14,7 @@ export default function TabAddSidebar() {
   let input: HTMLInputElement;
   const [isSearching, setIsSearching] = createSignal(false);
   onMount(() => {
-    setSelectedAppId(AppMetas[0].id);
+    setSelectedAppId(appMetas[0].id);
   })
 
   return (
@@ -49,7 +49,7 @@ export default function TabAddSidebar() {
 
 
       <div>
-        <For each={AppMetas}>
+        <For each={appMetas}>
           {(m) => {
             const btn = () => {
               const installation = installationOf(m.id);

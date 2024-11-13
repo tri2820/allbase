@@ -1,12 +1,9 @@
 import { onCleanup, onMount } from "solid-js";
-import { installationOf, AppMetas, install } from "~/components/apps";
-import esBundle from "~/lib/bundler";
-// import threeJSCubeBundle from "~/../examples/three-cube/dist/main.js?raw";
-
+import { appMetas, installationOf } from "~/components/apps";
 
 export default function TabGenericBody(props: { app_id: string }) {
   const installation = installationOf(props.app_id);
-  const AppMeta = AppMetas.find(
+  const AppMeta = appMetas.find(
     (AppMeta) => AppMeta.id == props.app_id
   );
 
@@ -18,30 +15,6 @@ export default function TabGenericBody(props: { app_id: string }) {
   onMount(async () => {
     const shadowRoot = shadow.attachShadow({ mode: "closed" });
     installation.onShadowRoot(shadowRoot);
-
-
-    // const style = document.createElement('style');
-    // style.textContent = `
-    //   #app {
-    //     height: 100vh;
-    //   }
-    // `;
-    // shadowRoot.appendChild(style);
-
-
-    // const js = threeJSCube;
-    // const js = threeJSCubeBundle;
-    // const { error, output } = await esBundle(js);
-    // if (error) {
-    //   console.log(error);
-    //   return;
-    // }
-    // try {
-    //   const result = installation.sandbox.evaluate(output);
-    //   console.log("result", result);
-    // } catch (error) {
-    //   console.log("error", error);
-    // }
   });
 
   onCleanup(() => {

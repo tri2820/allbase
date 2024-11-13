@@ -164,10 +164,10 @@ function ProfileSettings() {
           <img src="/avatar.jpg" class="min-w-full min-h-full" />
         </div>
 
-        <div class="space-y-4">
-          <div class="space-y-1">
-            <div class="font-medium text-lg">Peter Doe</div>
-            <div class="text-sm text-neutral-400">Product Designer</div>
+        <div class="space-y-2">
+          <div class="space-y-0.5">
+            <div class="font-bold text-2xl">Peter Doe</div>
+            <div class="c-description">Product Designer</div>
           </div>
 
           <div class="flex items-center space-x-2">

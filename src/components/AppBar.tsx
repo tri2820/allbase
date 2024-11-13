@@ -5,7 +5,7 @@ import {
   VsPassFilled
 } from "solid-icons/vs";
 import { createEffect, createSignal, For, JSX, onMount, Show } from "solid-js";
-import { AppMetas, installations } from "~/components/apps";
+import { appMetas, installations } from "~/components/apps";
 import { activeTabId, setActiveTabId } from "./tabs";
 import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
 
@@ -134,7 +134,7 @@ export default function AppBar() {
 
         <For each={installations()}>
           {(ins) => {
-            const app = AppMetas.find((m) => m.id == ins.id);
+            const app = appMetas.find((m) => m.id == ins.id);
             if (!app) return <></>;
             return (
               <TabTrigger id={ins.id}>
