@@ -1,11 +1,9 @@
 import { onCleanup, onMount } from "solid-js";
-import { appMetas, installationOf } from "~/components/apps";
+import { appMetas, bindShadowRoot, installationOf } from "~/components/apps";
 
 export default function TabGenericBody(props: { app_id: string }) {
   const installation = installationOf(props.app_id);
-  const AppMeta = appMetas.find(
-    (AppMeta) => AppMeta.id == props.app_id
-  );
+  const AppMeta = appMetas.find((AppMeta) => AppMeta.id == props.app_id);
 
   if (!AppMeta || !installation) {
     return <div>Not found</div>;
@@ -14,7 +12,7 @@ export default function TabGenericBody(props: { app_id: string }) {
   let shadow: HTMLDivElement;
   onMount(async () => {
     const shadowRoot = shadow.attachShadow({ mode: "closed" });
-    installation.onShadowRoot(shadowRoot);
+    bindShadowRoot(installation, shadowRoot);
   });
 
   onCleanup(() => {

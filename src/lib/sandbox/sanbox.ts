@@ -27,7 +27,7 @@ export class Sandbox {
   }
 
   constructor(public options: SandboxOptions) {
-
+    Sandbox.lockdown();
   }
 
   // lazily init when shadowRoot and stuffs have been all setup
@@ -90,4 +90,6 @@ export class Sandbox {
   getShadowRootProxy() {
     return this.shadowRootProxy
   }
+
+
 }

@@ -18,9 +18,10 @@ import {
 } from "solid-icons/bs";
 import { createSignal } from "solid-js";
 import { addTask, markComplete, RunningTaskData } from "~/components/tasks";
-import { compile } from "~/lib/compiler";
+import { compile, CompileResult } from "~/lib/compiler";
 import { Sandbox } from "~/lib/sandbox/sanbox";
 import Button from "./Button";
+import { serialize } from "seroval";
 
 export type AppMeta = {
   id: string;
@@ -37,11 +38,7 @@ export type AppMeta = {
 export const [installations, setInstallations] = createSignal<Installation[]>(
   []
 );
-export type Installation = {
-  id: string;
-  disabled: boolean;
-  onShadowRoot: (shadowRoot: ShadowRoot) => void;
-};
+
 export const appMetas: AppMeta[] = [
   {
     id: "0000-0000-0000-0001",
@@ -449,9 +446,105 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
   };
 }
 
-export const install = async (app: AppMeta) => {
-  let resolvePath: (relativePath: string) => string;
-  const url = new URL(app.index);
+type ResolvePath = (relativePath: string) => string;
+
+type Resource = {
+  type: "css" | "js";
+  value: string;
+};
+type Installation = {
+  id: string;
+  disabled: boolean;
+  resources: Resource[];
+  body: string;
+};
+
+export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
+  const sandbox = new Sandbox({
+    id: ins.id,
+  });
+  sandbox.setProxyOnShadowRoot(shadowRoot);
+  sandbox.setDistortion({
+    get: (obj) => {
+      if (obj == document.body) {
+        throw new Error("document.body is not accessible");
+      }
+
+      if (obj == document.getElementById) {
+        return {
+          ok: false,
+          value: (...args: any[]) => {
+            return sandbox.getShadowRootProxy()!.getElementById(
+              // @ts-ignore
+              ...args
+            );
+          },
+        };
+      }
+
+      return {
+        ok: true,
+        value: undefined,
+      };
+    },
+  });
+
+  // Add resources
+
+  shadowRoot.innerHTML = ins.body;
+
+  console.log("add resources", ins.resources);
+  for (const resource of ins.resources) {
+    if (resource.type === "css") {
+      const style = document.createElement("style");
+      style.innerHTML = resource.value;
+      shadowRoot.appendChild(style);
+    } else if (resource.type === "js") {
+      sandbox.evaluate(resource.value);
+    }
+  }
+};
+
+const fetchResource = async (resolvePath: ResolvePath, path: string) => {
+  const absolutePath = resolvePath(path);
+  const proxyPath = `/proxy?url=${encodeURIComponent(absolutePath)}`;
+  const response = await fetch(proxyPath);
+  if (!response.ok) throw new Error("Cannot fetch style");
+  return await response.text();
+};
+
+const fetchResources = async (
+  compiledResult: CompileResult,
+  resolvePath: ResolvePath
+) => {
+  const promises = [
+    ...compiledResult.stylesheets.map(async (stylesheet) => {
+      return {
+        type: "css",
+        value: stylesheet.href
+          ? await fetchResource(resolvePath, stylesheet.href)
+          : stylesheet.content,
+      } as Resource;
+    }),
+
+    ...compiledResult.scripts.map(async (script) => {
+      return {
+        type: "js",
+        value: script.src
+          ? await fetchResource(resolvePath, script.src)
+          : script.content,
+      } as Resource;
+    }),
+  ];
+
+  const data = await Promise.all(promises);
+
+  return data;
+};
+
+const getResolvePathFunction = (index: string) => {
+  let resolvePath: ResolvePath;
+  const url = new URL(index);
 
   const segments = url.pathname.split("/");
   const indexFile = segments.pop();
@@ -489,91 +582,42 @@ export const install = async (app: AppMeta) => {
   }
 
   const indexPath = resolvePath(indexFile);
-  const proxyPath = `/proxy?url=${encodeURIComponent(indexPath)}`;
-  let compiledResult: ReturnType<typeof compile>;
-  try {
-    const response = await fetch(proxyPath);
-    // TODO: Show error message to user
-    if (!response.ok) throw new Error("Failed to fetch the proxied URL");
-    const html = await response.text();
-    compiledResult = compile(html);
-    console.log("Compiled result:", compiledResult, html, proxyPath);
-  } catch (error) {
-    console.error("Error:", error);
-    return;
-  }
 
-  Sandbox.lockdown();
-  const sandbox = new Sandbox({
-    id: app.id,
-  });
-
-  const onShadowRoot = (shadowRoot: ShadowRoot) => {
-    sandbox.setProxyOnShadowRoot(shadowRoot);
-    sandbox.setDistortion({
-      get: (obj) => {
-        if (obj == document.body) {
-          throw new Error("document.body is not accessible");
-        }
-
-        if (obj == document.getElementById) {
-          return {
-            ok: false,
-            value: (...args: any[]) => {
-              return sandbox.getShadowRootProxy()!.getElementById(
-                // @ts-ignore
-                ...args
-              );
-            },
-          };
-        }
-
-        return {
-          ok: true,
-          value: undefined,
-        };
-      },
-    });
-
-    console.log("set innerHTML", compiledResult.body);
-    shadowRoot.innerHTML = compiledResult.body;
-
-    compiledResult.stylesheets.forEach(async (stylesheet) => {
-      const styleElement = document.createElement("style");
-      if (stylesheet.href) {
-        console.log(stylesheet.href);
-        const absolutePath = resolvePath(stylesheet.href);
-        const proxyPath = `/proxy?url=${encodeURIComponent(absolutePath)}`;
-        const response = await fetch(proxyPath);
-        styleElement.textContent = await response.text();
-      } else {
-        styleElement.textContent = stylesheet.content;
-      }
-      shadowRoot.appendChild(styleElement);
-    });
-
-    compiledResult.scripts.forEach(async (script) => {
-      let js: string;
-      if (script.src) {
-        const absolutePath = resolvePath(script.src);
-        const proxyPath = `/proxy?url=${encodeURIComponent(absolutePath)}`;
-        const response = await fetch(proxyPath);
-        js = await response.text();
-      } else {
-        js = script.content;
-      }
-
-      sandbox.evaluate(js);
-    });
+  return {
+    resolvePath,
+    indexPath,
   };
+};
 
-  const installation = {
+const fetchIndex = async (indexPath: string) => {
+  const proxyPath = `/proxy?url=${encodeURIComponent(indexPath)}`;
+  let compiledResult: CompileResult;
+  const response = await fetch(proxyPath);
+  // TODO: Show error message to user
+  if (!response.ok) throw new Error("Cannot fetch index");
+  const html = await response.text();
+  compiledResult = compile(html);
+  console.log("Compiled result:", compiledResult, html, proxyPath);
+
+  return compiledResult;
+};
+
+export const install = async (app: AppMeta) => {
+  const { resolvePath, indexPath } = getResolvePathFunction(app.index);
+  const compiledResult = await fetchIndex(indexPath);
+  const resources = await fetchResources(compiledResult, resolvePath);
+
+  // Only contains serializable values
+  const ins: Installation = {
     id: app.id,
     disabled: false,
-    onShadowRoot,
+    resources,
+    body: compiledResult.body,
   };
 
-  setInstallations([...installations(), installation]);
+  setInstallations([...installations(), ins]);
+
+  console.log("installations", installations());
 };
 
 export const remove = async (app: AppMeta) => {
@@ -584,7 +628,7 @@ export const remove = async (app: AppMeta) => {
   ]);
 };
 
-export const enable = async (app: AppMeta) => {
+const set = (disabled: boolean) => async (app: AppMeta) => {
   // await new Promise((resolve) => setTimeout(resolve, 1000));
   const installation = installationOf(app.id);
   if (!installation) return;
@@ -592,24 +636,13 @@ export const enable = async (app: AppMeta) => {
     ...installations().filter((installation) => installation.id != app.id),
     {
       ...installation,
-      disabled: false,
+      disabled,
     },
   ]);
 };
 
-export const disable = async (app: AppMeta) => {
-  // Disable
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
-  const installation = installationOf(app.id);
-  if (!installation) return;
-  setInstallations([
-    ...installations().filter((installation) => installation.id != app.id),
-    {
-      ...installation,
-      disabled: true,
-    },
-  ]);
-};
+export const disable = set(true);
+export const enable = set(false);
 
 export const installationOf = (app_id: string) =>
   installations().find((installation) => installation.id == app_id);

@@ -103,3 +103,5 @@ export function compile(html: string): ExtractedHTML {
         body
     };
 }
+
+export type CompileResult = ReturnType<typeof compile>

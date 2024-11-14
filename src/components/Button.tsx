@@ -37,11 +37,9 @@ export default function Button(props: {
       disabled={state() == "doing" || props.disabled}
       class={"btn flex items-center space-x-1.5 " + props.class}
       onClick={async (e) => {
-        console.log("ok");
         setState("doing");
         const error = await props.onClick(e);
         setState(error ? "failure" : "success");
-        console.log("ok 2", error);
       }}
     >
       <Dynamic component={IconComp()} />
