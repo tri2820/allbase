@@ -213,10 +213,28 @@ body {
   @apply bg-neutral-900 shadow-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-neutral-900 data-[active=true]:bg-neutral-800 data-[active=true]:text-white hover:text-white text-neutral-400 duration-150
 }
 
+.v-el-inverted {
+  @apply bg-white shadow-lg hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white data-[active=true]:bg-neutral-200 data-[active=true]:text-black hover:text-black text-neutral-900 duration-150
+}
+
 /* components */
 .button-sm {
   @apply v-el py-1 px-2 border text-xs rounded-lg disabled:cursor-not-allowed
 }
+
+.button-sm-inverted {
+  @apply v-el-inverted py-1 px-2 border text-xs rounded-lg disabled:cursor-not-allowed
+}
+
+.button {
+  @apply v-el py-1 px-2 border rounded-lg disabled:cursor-not-allowed
+}
+
+
+.button-inverted {
+  @apply v-el-inverted py-1 px-2 border rounded-lg disabled:cursor-not-allowed
+}
+
 
 .tab-trigger {
   @apply v-el m-2 p-2 rounded-lg border cursor-pointer text-neutral-500;
@@ -228,4 +246,86 @@ body {
 
 .header {
   @apply uppercase tracking-tight text-sm
+}
+.dialog__overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background-color: rgb(0 0 0 / 0.95);
+  animation: overlayHide 250ms ease 100ms forwards;
+}
+.dialog__overlay[data-expanded] {
+  animation: overlayShow 250ms ease;
+}
+.dialog__positioner {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dialog__content {
+  z-index: 50;
+  max-width: min(calc(100vw - 16px), 500px);
+  
+  @apply bg-neutral-900 text-white border border-neutral-800 rounded-lg overflow-hidden;
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  animation: contentHide 300ms ease-in forwards;
+}
+.dialog__content[data-expanded] {
+  animation: contentShow 300ms ease-out;
+}
+.dialog__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes overlayHide {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes contentHide {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+.form-input {
+  @apply outline-none  
+  border
+  border-neutral-800 rounded
+  min-w-0 
+  px-3 py-2
+  placeholder-neutral-500
+  text-sm caret-neutral-500 bg-transparent
 }
