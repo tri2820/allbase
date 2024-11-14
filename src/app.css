@@ -209,35 +209,33 @@ body {
   @apply hover:bg-neutral-900 data-[selected=true]:bg-neutral-900
 }
 
-.v-el {
-  @apply bg-neutral-900 shadow-lg hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-neutral-900 data-[active=true]:bg-neutral-800 data-[active=true]:text-white hover:text-white text-neutral-400 duration-150
+.el {
+  @apply bg-neutral-900 shadow-lg enabled:hover:bg-neutral-800 disabled:opacity-50 disabled:cursor-not-allowed  data-[active=true]:bg-neutral-800 data-[active=true]:text-white enabled:hover:text-white text-neutral-400 duration-150 
 }
 
-.v-el-inverted {
-  @apply bg-white shadow-lg hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white data-[active=true]:bg-neutral-200 data-[active=true]:text-black hover:text-black text-neutral-900 duration-150
+.el-inverted {
+  @apply bg-white shadow-lg enabled:hover:bg-neutral-200 disabled:opacity-50 disabled:cursor-not-allowed  data-[active=true]:bg-neutral-200 data-[active=true]:text-black enabled:hover:text-black text-neutral-900 duration-150
 }
 
 /* components */
-.button-sm {
-  @apply v-el py-1 px-2 border text-xs rounded-lg disabled:cursor-not-allowed
+/* Base button styles */
+.btn {
+  @apply el py-1.5 px-3 border text-sm font-medium rounded-lg disabled:cursor-not-allowed;
 }
 
-.button-sm-inverted {
-  @apply v-el-inverted py-1 px-2 border text-xs rounded-lg disabled:cursor-not-allowed
+/* Small button modifier */
+.btn-sm {
+  @apply py-1 px-2 text-xs;
 }
 
-.button {
-  @apply v-el py-1 px-2 border rounded-lg disabled:cursor-not-allowed
-}
-
-
-.button-inverted {
-  @apply v-el-inverted py-1 px-2 border rounded-lg disabled:cursor-not-allowed
+/* Inverted button modifier */
+.btn-inverted {
+  @apply el-inverted;
 }
 
 
 .tab-trigger {
-  @apply v-el m-2 p-2 rounded-lg border cursor-pointer text-neutral-500;
+  @apply el m-2 p-2 rounded-lg border cursor-pointer text-neutral-500;
 }
 
 .divider {
@@ -269,7 +267,7 @@ body {
   z-index: 50;
   max-width: min(calc(100vw - 16px), 500px);
   
-  @apply bg-neutral-900 text-white border border-neutral-800 rounded-lg overflow-hidden;
+  @apply bg-neutral-950 text-white border  rounded-lg overflow-hidden;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   animation: contentHide 300ms ease-in forwards;
 }
@@ -323,7 +321,7 @@ body {
 .form-input {
   @apply outline-none  
   border
-  border-neutral-800 rounded
+  rounded
   min-w-0 
   px-3 py-2
   placeholder-neutral-500

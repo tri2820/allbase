@@ -8,6 +8,7 @@ import {
   selectedAppId,
   setSelectedAppId,
 } from "~/components/apps";
+import Button from "~/components/Button";
 import Icon from "~/components/Icon";
 
 export default function TabAddSidebar() {
@@ -15,27 +16,30 @@ export default function TabAddSidebar() {
   const [isSearching, setIsSearching] = createSignal(false);
   onMount(() => {
     setSelectedAppId(appMetas[0].id);
-  })
+  });
 
   return (
     <div class="overflow-y-auto overflow-x-hidden flex-1">
-
-      <div class="flex items-center space-x-4 mx-4">
-        <div class="header py-4">apps</div>
-        <div data-show={!isSearching()} class="flex-1 hidden data-[show=true]:block" />
+      <div class="flex items-center space-x-4 justify-between mx-4  ">
+        <div class="header py-4 ">apps</div>
+        {/* <div data-show={!isSearching()} class="flex-1 hidden data-[show=true]:block" /> */}
         <div
           data-show={isSearching()}
-          class="my-2 flex-none data-[show=true]:flex-1 flex items-stretch v-el border shadow-lg rounded-lg overflow-hidden">
-          <button class="flex-none  p-2" onClick={() => {
-            setIsSearching(true)
-            input!.focus();
-          }}>
+          class="my-2 flex-none data-[show=true]:flex-1 flex items-stretch el border shadow-lg rounded-lg overflow-hidden "
+        >
+          <button
+            class="flex-none p-2"
+            onClick={() => {
+              setIsSearching(true);
+              input!.focus();
+            }}
+          >
             <ImSearch class="w-4 h-4" />
           </button>
           <input
             ref={input!}
             onBlur={() => {
-              setIsSearching(false)
+              setIsSearching(false);
             }}
             data-show={isSearching()}
             placeholder="Search"
@@ -46,7 +50,6 @@ export default function TabAddSidebar() {
           />
         </div>
       </div>
-
 
       <div>
         <For each={appMetas}>

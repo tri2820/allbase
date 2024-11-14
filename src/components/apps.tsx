@@ -14,12 +14,13 @@ import {
   BsPiggyBankFill,
   BsPlugFill,
   BsTruck,
-  BsWalletFill
+  BsWalletFill,
 } from "solid-icons/bs";
 import { createSignal } from "solid-js";
 import { addTask, markComplete, RunningTaskData } from "~/components/tasks";
 import { compile } from "~/lib/compiler";
 import { Sandbox } from "~/lib/sandbox/sanbox";
+import Button from "./Button";
 
 export type AppMeta = {
   id: string;
@@ -39,13 +40,14 @@ export const [installations, setInstallations] = createSignal<Installation[]>(
 export type Installation = {
   id: string;
   disabled: boolean;
-  onShadowRoot: (shadowRoot: ShadowRoot) => void
+  onShadowRoot: (shadowRoot: ShadowRoot) => void;
 };
 export const appMetas: AppMeta[] = [
   {
     id: "0000-0000-0000-0001",
     name: "Communication Hub",
-    description: "Centralize team communication with threads, channels, and real-time messaging.",
+    description:
+      "Centralize team communication with threads, channels, and real-time messaging.",
     readme: `
 # Communication Hub
 
@@ -66,12 +68,14 @@ The Communication Hub centralizes team messaging, providing an efficient, real-t
     author_name: "AllBase",
     icon: BsChatFill,
     backgroundColor: "#129aab",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
   },
   {
     id: "0000-0000-0000-0002",
     name: "Project Management Board",
-    description: "Plan, organize, and track projects with Kanban boards and Gantt charts.",
+    description:
+      "Plan, organize, and track projects with Kanban boards and Gantt charts.",
     readme: `
 # Project Management Board
 
@@ -92,7 +96,8 @@ A comprehensive project management tool, the Project Management Board organizes 
     author_name: "AllBase",
     icon: BsKanban,
     backgroundColor: "#fa3a4a",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/project-management-board/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/project-management-board/dist/index.html",
   },
   {
     id: "0000-0000-0000-0003",
@@ -118,12 +123,14 @@ Collaborative Notes allows team members to create, edit, and share notes in real
     author_name: "AllBase",
     icon: BsPenFill,
     backgroundColor: "#0ba749",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/collaborative-notes/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/collaborative-notes/dist/index.html",
   },
   {
     id: "0000-0000-0000-0005",
     name: "Whiteboard",
-    description: "Collaborative whiteboard for brainstorming and visual note-taking.",
+    description:
+      "Collaborative whiteboard for brainstorming and visual note-taking.",
     readme: `
 # Whiteboard
 
@@ -144,12 +151,14 @@ The Whiteboard app offers a digital space for brainstorming and visual collabora
     author_name: "AllBase",
     icon: BsCursorFill,
     backgroundColor: "#fd6005",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/whiteboard/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/whiteboard/dist/index.html",
   },
   {
     id: "0000-0000-0000-0006",
     name: "Financial Ledger",
-    description: "Manage accounts with double-entry bookkeeping and financial reporting.",
+    description:
+      "Manage accounts with double-entry bookkeeping and financial reporting.",
     readme: `
 # Financial Ledger
 
@@ -169,12 +178,14 @@ The Financial Ledger app is designed for small businesses and accounting teams, 
     author_name: "AllBase",
     icon: BsPiggyBankFill,
     backgroundColor: "#ffaa00",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/financial-ledger/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/financial-ledger/dist/index.html",
   },
   {
     id: "0000-0000-0000-0007",
     name: "Inventory Management",
-    description: "Track and manage stock levels, movements, and reorder thresholds.",
+    description:
+      "Track and manage stock levels, movements, and reorder thresholds.",
     readme: `
 # Inventory Management
 
@@ -195,12 +206,14 @@ The Inventory Management app simplifies stock tracking and helps businesses avoi
     author_name: "AllBase",
     icon: BsBoxes,
     backgroundColor: "#ac39ac",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/inventory-management/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/inventory-management/dist/index.html",
   },
   {
     id: "0000-0000-0000-0008",
     name: "Order Management",
-    description: "Manage sales and purchase orders with invoice tracking and status updates.",
+    description:
+      "Manage sales and purchase orders with invoice tracking and status updates.",
     readme: `
 # Order Management
 
@@ -221,12 +234,14 @@ The Order Management app enables efficient tracking of sales and purchase orders
     author_name: "AllBase",
     icon: BsTruck,
     backgroundColor: "#3e95ef",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/order-management/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/order-management/dist/index.html",
   },
   {
     id: "0000-0000-0000-0009",
     name: "Payroll and HR",
-    description: "Manage payroll, track attendance, and handle HR requests efficiently.",
+    description:
+      "Manage payroll, track attendance, and handle HR requests efficiently.",
     readme: `
 # Payroll and HR
 
@@ -247,12 +262,14 @@ The Payroll and HR app streamlines HR management by tracking employee data, atte
     author_name: "AllBase",
     icon: BsPersonBadgeFill,
     backgroundColor: "#ff6347",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/payroll-hr/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/payroll-hr/dist/index.html",
   },
   {
     id: "0000-0000-0000-0011",
     name: "Customer Relationship Management (CRM)",
-    description: "Manage customer interactions, track sales leads, and organize customer data.",
+    description:
+      "Manage customer interactions, track sales leads, and organize customer data.",
     readme: `
 # Customer Relationship Management (CRM)
 
@@ -273,12 +290,14 @@ The CRM app provides a platform to track and organize customer data, manage inte
     author_name: "AllBase",
     icon: BsPeopleFill,
     backgroundColor: "#e6739f",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/crm/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/crm/dist/index.html",
   },
   {
     id: "0000-0000-0000-0012",
     name: "Sales Tracker",
-    description: "Track sales progress, analyze trends, and monitor key performance indicators.",
+    description:
+      "Track sales progress, analyze trends, and monitor key performance indicators.",
     readme: `
 # Sales Tracker
 
@@ -299,12 +318,14 @@ The Sales Tracker app enables users to monitor and analyze sales data. Track KPI
     author_name: "AllBase",
     icon: BsGraphUp,
     backgroundColor: "#f98b10",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/sales-tracker/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/sales-tracker/dist/index.html",
   },
   {
     id: "0000-0000-0000-0013",
     name: "Expense Tracker",
-    description: "Monitor and categorize business expenses with reports and analytics.",
+    description:
+      "Monitor and categorize business expenses with reports and analytics.",
     readme: `
 # Expense Tracker
 
@@ -325,12 +346,14 @@ The Expense Tracker app enables businesses to record, categorize, and monitor ex
     author_name: "AllBase",
     icon: BsWalletFill,
     backgroundColor: "#3eb57a",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/expense-tracker/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/expense-tracker/dist/index.html",
   },
   {
     id: "0000-0000-0000-0014",
     name: "Budget Planner",
-    description: "Plan budgets, allocate resources, and compare actuals with forecasts.",
+    description:
+      "Plan budgets, allocate resources, and compare actuals with forecasts.",
     readme: `
 # Budget Planner
 
@@ -351,7 +374,8 @@ The Budget Planner app is a financial planning tool to help manage resources and
     author_name: "AllBase",
     icon: BsCalculatorFill,
     backgroundColor: "#4caf50",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/budget-planner/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/budget-planner/dist/index.html",
   },
   {
     id: "0000-0000-0000-0017",
@@ -377,12 +401,14 @@ The Performance Review app is designed for HR teams to track and manage employee
     author_name: "AllBase",
     icon: BsBarChartFill,
     backgroundColor: "#9c27b0",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/performance-review/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/performance-review/dist/index.html",
   },
   {
     id: "0000-0000-0000-0019",
     name: "Calendar",
-    description: "Schedule and view events, meetings, and deadlines in a shared calendar.",
+    description:
+      "Schedule and view events, meetings, and deadlines in a shared calendar.",
     readme: `
 # Calendar
 
@@ -403,10 +429,10 @@ The Calendar app keeps track of meetings, events, and deadlines. It enables team
     author_name: "AllBase",
     icon: BsCalendarFill,
     backgroundColor: "#e91e63",
-    index: "https://github.com/tri2820/allbase/blob/main/examples/calendar/dist/index.html",
+    index:
+      "https://github.com/tri2820/allbase/blob/main/examples/calendar/dist/index.html",
   },
 ];
-
 
 export const [selectedAppId, setSelectedAppId] = createSignal<
   string | undefined
@@ -436,21 +462,21 @@ export const install = async (app: AppMeta) => {
 
   const folderUrl = `${url.origin}${segments.join("/")}/`;
   console.log("folderUrl", folderUrl);
-  console.log('indexFile', indexFile);
+  console.log("indexFile", indexFile);
 
   // If the host is github.com
-  // Modify the URL to include the raw parameter 
+  // Modify the URL to include the raw parameter
   if (url.hostname === "github.com") {
     // WARNING: Only works for root-relative paths
     resolvePath = (relativePath: string) => {
       if (relativePath.startsWith("/")) relativePath = relativePath.slice(1);
-      console.log('called with', relativePath);
+      console.log("called with", relativePath);
       const url = new URL(relativePath, folderUrl);
       url.searchParams.set("raw", "true");
       const absolutePath = url.toString();
-      console.log('return', absolutePath, folderUrl);
+      console.log("return", absolutePath, folderUrl);
       return absolutePath;
-    }
+    };
   }
   // ... other hosts
   // Fallback
@@ -459,8 +485,7 @@ export const install = async (app: AppMeta) => {
       if (relativePath.startsWith("/")) relativePath = relativePath.slice(1);
       const url = new URL(relativePath, folderUrl);
       return url.toString();
-    }
-
+    };
   }
 
   const indexPath = resolvePath(indexFile);
@@ -478,19 +503,17 @@ export const install = async (app: AppMeta) => {
     return;
   }
 
-
   Sandbox.lockdown();
   const sandbox = new Sandbox({
     id: app.id,
   });
-
 
   const onShadowRoot = (shadowRoot: ShadowRoot) => {
     sandbox.setProxyOnShadowRoot(shadowRoot);
     sandbox.setDistortion({
       get: (obj) => {
         if (obj == document.body) {
-          throw new Error('document.body is not accessible')
+          throw new Error("document.body is not accessible");
         }
 
         if (obj == document.getElementById) {
@@ -500,24 +523,23 @@ export const install = async (app: AppMeta) => {
               return sandbox.getShadowRootProxy()!.getElementById(
                 // @ts-ignore
                 ...args
-              )
-            }
-          }
+              );
+            },
+          };
         }
 
         return {
           ok: true,
-          value: undefined
-        }
-      }
-    })
+          value: undefined,
+        };
+      },
+    });
 
-    console.log('set innerHTML', compiledResult.body);
+    console.log("set innerHTML", compiledResult.body);
     shadowRoot.innerHTML = compiledResult.body;
 
-
     compiledResult.stylesheets.forEach(async (stylesheet) => {
-      const styleElement = document.createElement('style');
+      const styleElement = document.createElement("style");
       if (stylesheet.href) {
         console.log(stylesheet.href);
         const absolutePath = resolvePath(stylesheet.href);
@@ -542,8 +564,8 @@ export const install = async (app: AppMeta) => {
       }
 
       sandbox.evaluate(js);
-    })
-  }
+    });
+  };
 
   const installation = {
     id: app.id,
@@ -626,18 +648,18 @@ export function mkButton(type: "install" | "remove" | "enable" | "disable") {
     const [doing, setDoing] = createSignal(false);
 
     return (
-      <button
+      <Button
         onClick={async (e) => {
           e.stopPropagation();
           setDoing(true);
           await taskAction(app);
           setDoing(false);
         }}
-        class="button-sm"
+        class="btn btn-sm"
         disabled={doing()}
       >
         {doing() ? doingLabel : label}
-      </button>
+      </Button>
     );
   };
 }
