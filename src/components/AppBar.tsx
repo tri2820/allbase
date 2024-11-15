@@ -1,11 +1,18 @@
 import { DropdownMenu } from "@kobalte/core/dropdown-menu";
-import { BsActivity, BsBell, BsBellFill, BsPersonFill, BsPlusLg } from "solid-icons/bs";
 import {
-  VsLoading,
-  VsPassFilled
-} from "solid-icons/vs";
+  BsActivity,
+  BsBell,
+  BsBellFill,
+  BsPersonFill,
+  BsPlusLg,
+} from "solid-icons/bs";
+import { VsLoading, VsPassFilled } from "solid-icons/vs";
 import { createEffect, createSignal, For, JSX, onMount, Show } from "solid-js";
-import { appMetas, installations } from "~/components/apps";
+import {
+  appMetas,
+  enabledInstallations,
+  installations,
+} from "~/components/apps";
 import { activeTabId, setActiveTabId } from "./tabs";
 import { newTaskHint, setNewTaskHint, sortedTasks } from "./tasks";
 
@@ -14,13 +21,15 @@ function TabsIndicator() {
   let ref: HTMLDivElement;
 
   createEffect(() => {
-    const activeId = activeTabId()
-    const activeTab = document.querySelector(`[data-tab-trigger-id="${activeId}"]`);
+    const activeId = activeTabId();
+    const activeTab = document.querySelector(
+      `[data-tab-trigger-id="${activeId}"]`
+    );
     if (!activeTab) return;
     const rect = activeTab.getBoundingClientRect();
     ref.style.top = `${rect.top}px`;
     ref.style.left = `${rect.left - 10}px`;
-  })
+  });
 
   onMount(() => {
     const first = document.querySelector("[data-tab-trigger-id]");
@@ -31,7 +40,7 @@ function TabsIndicator() {
     ref.style.top = `${rect.top - 1}px`;
     ref.style.left = `${rect.left - 10}px`;
     const id = first.getAttribute("data-tab-trigger-id")!;
-    console.log('first id', first, id);
+    console.log("first id", first, id);
     setActiveTabId(id);
     setShow(true);
   });
@@ -50,7 +59,7 @@ function TabTrigger(props: { children: JSX.Element; id: string }) {
     <div
       data-tab-trigger-id={props.id}
       onClick={() => {
-        console.log('setActiveTabId', props.id)
+        console.log("setActiveTabId", props.id);
         setActiveTabId(props.id);
       }}
       data-active={props.id === activeTabId()}
@@ -82,9 +91,7 @@ export default function AppBar() {
 
         <DropdownMenu.Portal>
           <DropdownMenu.Content class="dropdown-menu__content max-h-60 overflow-auto nice-scrollbar">
-            <div class="header c-description px-4  py-2">
-              Notifications
-            </div>
+            <div class="header c-description px-4  py-2">Notifications</div>
 
             <Show
               when={sortedTasks().length > 0}
@@ -132,7 +139,7 @@ export default function AppBar() {
           <BsPersonFill class="w-6 h-6 " />
         </TabTrigger>
 
-        <For each={installations()}>
+        <For each={enabledInstallations()}>
           {(ins) => {
             const app = appMetas.find((m) => m.id == ins.id);
             if (!app) return <></>;

@@ -1,5 +1,5 @@
 import { TbLoader } from "solid-icons/tb";
-import { Component, createSignal, JSX } from "solid-js";
+import { Accessor, Component, createSignal, JSX } from "solid-js";
 import { DOMElement } from "solid-js/jsx-runtime";
 import { Dynamic } from "solid-js/web";
 
@@ -19,6 +19,7 @@ export default function Button(props: {
   children: JSX.Element;
   class?: string;
   disabled?: boolean;
+  // doing?: Accessor<boolean>;
 }) {
   const [state, setState] = createSignal<
     "idle" | "doing" | "success" | "failure"

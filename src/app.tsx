@@ -10,12 +10,23 @@ import "@fontsource/poppins/900.css";
 import { Link, MetaProvider, Title } from "@solidjs/meta";
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { Suspense } from "solid-js";
+import { onMount, Suspense } from "solid-js";
 import "./app.css";
 import { Auth } from "./components/Auth";
-
+import { installations, setInstallations } from "./components/apps";
+import { local } from "./local";
+import { serialize, deserialize } from "seroval";
+import { Portal } from "solid-js/web";
+import { Toast } from "@kobalte/core/toast";
 
 export default function App() {
+  onMount(async () => {
+    const keys = await local.keys();
+    const serializeds = await Promise.all(keys.map((k) => local.getItem(k)));
+    const _installations = serializeds.map((s) => deserialize(s as string));
+    setInstallations(_installations as any[]);
+    console.log("_installations", _installations, installations());
+  });
 
   return (
     <Router
@@ -27,12 +38,15 @@ export default function App() {
           </div>
 
           <Suspense>
-            <Auth>
-              {props.children}
-            </Auth>
+            <Auth>{props.children}</Auth>
           </Suspense>
-        </MetaProvider>
 
+          <Portal>
+            <Toast.Region>
+              <Toast.List class="toast__list" />
+            </Toast.Region>
+          </Portal>
+        </MetaProvider>
       )}
     >
       <FileRoutes />

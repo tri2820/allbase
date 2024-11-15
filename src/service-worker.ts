@@ -2,11 +2,11 @@
 export default null
 declare let self: ServiceWorkerGlobalScope
 
-import localforage from 'localforage';
-import { AppMessage } from './global';
-const store = localforage.createInstance({
-    name: "apps"
-});
+// import localforage from 'localforage';
+
+// const store = localforage.createInstance({
+//     name: "apps"
+// });
 
 
 // fetch('http://localhost:5173/')
@@ -23,7 +23,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(self.skipWaiting()); // Activate worker immediately
     console.log('Service Worker done installing.');
     // Perform install steps if needed (e.g., caching resources)
-    store.setItem('greet', 'hello world')
+    // store.setItem('greet', 'hello world')
 
 });
 

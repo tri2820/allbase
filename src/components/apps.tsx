@@ -1,3 +1,4 @@
+import { serialize, deserialize } from "seroval";
 import { IconTypes } from "solid-icons";
 import {
   BsBarChartFill,
@@ -12,7 +13,6 @@ import {
   BsPeopleFill,
   BsPersonBadgeFill,
   BsPiggyBankFill,
-  BsPlugFill,
   BsTruck,
   BsWalletFill,
 } from "solid-icons/bs";
@@ -21,7 +21,8 @@ import { addTask, markComplete, RunningTaskData } from "~/components/tasks";
 import { compile, CompileResult } from "~/lib/compiler";
 import { Sandbox } from "~/lib/sandbox/sanbox";
 import Button from "./Button";
-import { serialize } from "seroval";
+import { local } from "~/local";
+import { showToast } from "~/toast";
 
 export type AppMeta = {
   id: string;
@@ -445,20 +446,6 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
     };
   };
 }
-
-type ResolvePath = (relativePath: string) => string;
-
-type Resource = {
-  type: "css" | "js";
-  value: string;
-};
-type Installation = {
-  id: string;
-  disabled: boolean;
-  resources: Resource[];
-  body: string;
-};
-
 export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
   const sandbox = new Sandbox({
     id: ins.id,
@@ -593,7 +580,6 @@ const fetchIndex = async (indexPath: string) => {
   const proxyPath = `/proxy?url=${encodeURIComponent(indexPath)}`;
   let compiledResult: CompileResult;
   const response = await fetch(proxyPath);
-  // TODO: Show error message to user
   if (!response.ok) throw new Error("Cannot fetch index");
   const html = await response.text();
   compiledResult = compile(html);
@@ -603,46 +589,60 @@ const fetchIndex = async (indexPath: string) => {
 };
 
 export const install = async (app: AppMeta) => {
-  const { resolvePath, indexPath } = getResolvePathFunction(app.index);
-  const compiledResult = await fetchIndex(indexPath);
-  const resources = await fetchResources(compiledResult, resolvePath);
+  try {
+    const { resolvePath, indexPath } = getResolvePathFunction(app.index);
+    const compiledResult = await fetchIndex(indexPath);
+    const resources = await fetchResources(compiledResult, resolvePath);
 
-  // Only contains serializable values
-  const ins: Installation = {
-    id: app.id,
-    disabled: false,
-    resources,
-    body: compiledResult.body,
-  };
+    // Only contains serializable values
+    const ins: Installation = {
+      id: app.id,
+      disabled: false,
+      resources,
+      body: compiledResult.body,
+    };
 
-  setInstallations([...installations(), ins]);
-
-  console.log("installations", installations());
+    setInstallations([...installations(), ins]);
+    const serialized = serialize(ins);
+    await local.setItem(app.id, serialized);
+  } catch (e) {
+    showToast({
+      title: "We couldn't install this app",
+      description:
+        "Mind trying again? If the problem continues, our team is here to help.",
+      type: "error",
+    });
+  }
 };
 
 export const remove = async (app: AppMeta) => {
-  // Remove
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
   setInstallations([
     ...installations().filter((installation) => installation.id != app.id),
   ]);
+
+  await local.removeItem(app.id);
 };
 
 const set = (disabled: boolean) => async (app: AppMeta) => {
   // await new Promise((resolve) => setTimeout(resolve, 1000));
   const installation = installationOf(app.id);
   if (!installation) return;
+  const newIns: Installation = {
+    ...installation,
+    disabled,
+  };
   setInstallations([
     ...installations().filter((installation) => installation.id != app.id),
-    {
-      ...installation,
-      disabled,
-    },
+    newIns,
   ]);
+
+  await local.setItem(app.id, serialize(newIns));
 };
 
 export const disable = set(true);
 export const enable = set(false);
+export const enabledInstallations = () =>
+  installations().filter((i) => !i.disabled);
 
 export const installationOf = (app_id: string) =>
   installations().find((installation) => installation.id == app_id);

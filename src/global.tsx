@@ -4,8 +4,8 @@ import { AuthResult } from "@instantdb/core/dist/module/clientTypes";
 import { Profile } from "./components/database";
 
 export const bodyOverlay = useOverlay();
-export const sw: () => Omit<ServiceWorker, 'postMessage'> & {
-    postMessage: (message: AppMessage) => void
+export const sw: () => Omit<ServiceWorker, "postMessage"> & {
+  postMessage: (message: AppMessage) => void;
 } = () => navigator.serviceWorker.controller!;
 
 export const [auth, setAuth] = createSignal<AuthResult>();
@@ -13,10 +13,25 @@ export const [auth, setAuth] = createSignal<AuthResult>();
 export const user = () => auth()?.user;
 export const [profile, setProfile] = createSignal<Profile>();
 
-export type AppMessage = any
+export type AppMessage = any;
 // {
 //     type: 'INSTALL_APP',
 //     app_id: string,
 //     index: string,
 //     offline: boolean
 // }
+
+declare global {
+  type ResolvePath = (relativePath: string) => string;
+
+  type Resource = {
+    type: "css" | "js";
+    value: string;
+  };
+  type Installation = {
+    id: string;
+    disabled: boolean;
+    resources: Resource[];
+    body: string;
+  };
+}
