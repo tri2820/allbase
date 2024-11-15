@@ -79,6 +79,12 @@ export class Sandbox {
     });
   }
 
+  async import(code: string) {
+    const compartment = this.compartment ?? this.init();
+    const namespace = await compartment.import(code);
+    return namespace
+  }
+
   setDistortion(distortion: Distortion) {
     this.membrane.distortion = distortion;
   }

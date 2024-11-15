@@ -66,8 +66,9 @@ The Communication Hub centralizes team messaging, providing an efficient, real-t
     author_name: "AllBase",
     icon: BsChatFill,
     backgroundColor: "#129aab",
-    index:
-      "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+    // index:
+    //   "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+    index: "http://localhost:5173/index.html",
   },
   {
     id: "0000-0000-0000-0002",
@@ -480,14 +481,19 @@ export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
 
   shadowRoot.innerHTML = ins.body;
 
-  console.log("add resources", ins.resources);
+  console.log("add resources", ins.resources, ins.resources.length);
   for (const resource of ins.resources) {
     if (resource.type === "css") {
       const style = document.createElement("style");
       style.innerHTML = resource.value;
       shadowRoot.appendChild(style);
     } else if (resource.type === "js") {
-      sandbox.evaluate(resource.value);
+      try {
+        console.log("evaluate", resource.type, resource.value);
+        sandbox.evaluate(resource.value);
+      } catch (e) {
+        console.error(e, resource.value);
+      }
     }
   }
 };
@@ -606,6 +612,7 @@ export const install = async (app: AppMeta) => {
     const serialized = serialize(ins);
     await local.setItem(app.id, serialized);
   } catch (e) {
+    console.error(e);
     showToast({
       title: "We couldn't install this app",
       description:

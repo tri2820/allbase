@@ -72,7 +72,7 @@ function TabTrigger(props: { children: JSX.Element; id: string }) {
 
 export default function AppBar() {
   return (
-    <div class="flex flex-col h-screen overflow-y-auto overflow-x-hidden items-center py-4 hide-scrollbar">
+    <div class="flex-none flex flex-col h-screen overflow-y-auto overflow-x-hidden items-center py-4 hide-scrollbar">
       <DropdownMenu
         onOpenChange={() => {
           setNewTaskHint(false);
