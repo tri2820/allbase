@@ -1,11 +1,17 @@
 // import "./style.css";
 
-console.log('me running');
-const app = document.getElementById("app")!;
-app.innerHTML = '<div>s lol k k ol ooo xxo</div>';
+console.log('import.meta.hot', import.meta.hot)
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    // Handle what should happen when this module is updated
+    // console.log("Module updated!");
 
+        console.log('elo');
+        // const app = document.getElementById("app")!;
+        // app.innerHTML = '<div>aaxxxxaaa</div>';
 
-
+  });
+}
 
 // import * as THREE from "three";
 

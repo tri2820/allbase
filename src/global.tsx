@@ -61,6 +61,6 @@ declare global {
     disabled: boolean;
     resources: Resource[];
     body: string;
-    can_update_automatically: boolean;
+    allow_page_reload: boolean;
   };
 }

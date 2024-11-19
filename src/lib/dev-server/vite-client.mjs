@@ -1,3 +1,30 @@
+const context = ( () => {
+  if (typeof globalThis !== "undefined") {
+      return globalThis;
+  } else if (typeof self !== "undefined") {
+      return self;
+  } else if (typeof window !== "undefined") {
+      return window;
+  } else {
+      return Function("return this")();
+  }
+}
+)();
+const defines = {};
+Object.keys(defines).forEach( (key) => {
+  const segments = key.split(".");
+  let target = context;
+  for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      if (i === segments.length - 1) {
+          target[segment] = defines[key];
+      } else {
+          target = target[segment] || (target[segment] = {});
+      }
+  }
+}
+);
+
 class HMRContext {
   constructor(hmrClient, ownerPath) {
     this.hmrClient = hmrClient;
@@ -592,10 +619,10 @@ const hmrClient = new HMRClient(
     isWithinCircularImport
   }) {
     const [acceptedPathWithoutQuery, query] = acceptedPath.split(`?`);
-    const importPromise = import(
-      /* @vite-ignore */
-      base + acceptedPathWithoutQuery.slice(1) + `?${explicitImportRequired ? "import&" : ""}t=${timestamp}${query ? `&${query}` : ""}`
-    );
+    const url = base + acceptedPathWithoutQuery.slice(1) + `?${explicitImportRequired ? "import&" : ""}t=${timestamp}${query ? `&${query}` : ""}`
+    console.log('importing...', url);
+    const importPromise = import(url);
+    
     if (isWithinCircularImport) {
       importPromise.catch(() => {
         console.info(

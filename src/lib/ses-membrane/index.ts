@@ -29,7 +29,15 @@ export function createSESVirtualEnvironment(
   globalObject: WindowProxy & typeof globalThis,
   redCompartment: Compartment,
   providedOptions?: BrowserEnvironmentOptions
-): VirtualEnvironment {
+): {
+  env: VirtualEnvironment,
+  revoke: () => void
+} {
+  let _revokedAll = false;
+  const revoke = () => {
+    _revokedAll = true;
+  };
+
   let defaultGlobalOwnKeys: PropertyKey[] | null = null;
   if (typeof globalObject !== "object" || globalObject === null) {
     throw new TypeErrorCtor("Missing global object virtualization target.");
@@ -67,6 +75,9 @@ export function createSESVirtualEnvironment(
   const { eval: redIndirectEval } = redGlobalObject;
   const env = new VirtualEnvironment({
     blueConnector,
+    revokedProxyCallback: (value: any) => {
+      return _revokedAll || revoked.has(value);
+    },
     redConnector: createRedConnector(
       signSourceCallback
         ? (sourceText: string) =>
@@ -105,9 +116,6 @@ export function createSESVirtualEnvironment(
     );
     env.remapProperties(globalObject, filteredEndowments);
   }
-  return env;
+  return {env, revoke}
 }
 
-function revokedProxyCallback(value: ProxyTarget): boolean {
-  return revoked.has(value as any);
-}

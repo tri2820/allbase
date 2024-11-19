@@ -22,7 +22,6 @@ import { Distortion, Sandbox } from "~/lib/sandbox/sanbox";
 import Button from "./Button";
 import { local } from "~/local";
 import { showToast } from "~/toast";
-import VITE_CLIENT_MJS from "~/lib/dev-server/vite-client.mjs?raw";
 import TEST_MJS from "~/lib/dev-server/test.mjs?raw";
 
 export const [installations, setInstallations] = createSignal<Installation[]>(
@@ -436,13 +435,22 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
     };
   };
 }
-export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
-  const sandbox = new Sandbox({
-    id: ins.id,
+
+export const sandboxes = new Map<string, Sandbox>();
+export const shadowRoots = new Map<string, ShadowRoot>();
+
+export const onUIReady = (id: string, shadowRoot: ShadowRoot) => {
+  const ins = installationOf(id);
+  if (!ins) throw new Error("No installation found for " + id);
+
+  shadowRoots.set(id, shadowRoot);
+  const sandbox = new Sandbox(ins.id, {
+    allow_page_reload: ins.allow_page_reload,
   });
 
-  sandbox.buildDistortion(shadowRoot);
+  sandboxes.set(id, sandbox);
 
+  sandbox.setShadowRoot(shadowRoot);
   shadowRoot.innerHTML = ins.body;
   console.log("add resources", ins.resources, ins.resources.length);
   for (const resource of ins.resources) {
@@ -453,24 +461,11 @@ export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
     } else if (resource.as === "js") {
       try {
         if (resource.type === "module") {
-          if (resource.specifier == "/@vite/client") {
-            // import our own modified client
-            // which fixes some SES issues
-            // https://github.com/endojs/endo/issues/2633
-
-            // And supports loading the app, not AllBase itself
-            // --> Use distortion for this
-            const _ = sandbox.importNow(
-              resource.specifier,
-              VITE_CLIENT_MJS
-            ).default;
-          } else {
-            const namespace = sandbox.importNow(
-              resource.specifier,
-              resource.value
-            ).default;
-            console.log("imported", resource.specifier);
-          }
+          const namespace = sandbox.importNow(
+            resource.specifier,
+            resource.value
+          ).default;
+          console.log("imported", resource.specifier);
         } else {
           // sandbox.evaluate(resource.value);
         }
@@ -479,14 +474,24 @@ export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
       }
     }
   }
+
+  // try {
+  //   sandbox.importNow("test", TEST_MJS);
+  // } catch (e) {
+  //   console.error(e);
+  // }
+};
+
+export const proxyFetch = async (url: string) => {
+  const proxyPath = `/proxy?url=${encodeURIComponent(url)}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Cannot fetch ${proxyPath}`);
+  return await response.text();
 };
 
 const fetchResource = async (resolvePath: ResolvePath, path: string) => {
   const absolutePath = resolvePath(path);
-  const proxyPath = `/proxy?url=${encodeURIComponent(absolutePath)}`;
-  const response = await fetch(proxyPath);
-  if (!response.ok) throw new Error("Cannot fetch style");
-  return await response.text();
+  return proxyFetch(absolutePath);
 };
 
 const fetchResources = async (
@@ -526,7 +531,7 @@ const fetchResources = async (
   return data;
 };
 
-const getResolvePathFunction = (index: string) => {
+export const getResolvePathFunction = (index: string) => {
   let resolvePath: ResolvePath;
   const url = new URL(index);
 
@@ -589,8 +594,10 @@ const fetchIndex = async (indexPath: string) => {
   return compiledResult;
 };
 
-export const fetchAppData = async (index: string) => {
-  const { resolvePath, indexPath } = getResolvePathFunction(index);
+export const fetchAppData = async (
+  indexPath: string,
+  resolvePath: ResolvePath
+) => {
   const compiledResult = await fetchIndex(indexPath);
   const resources = await fetchResources(compiledResult, resolvePath);
   return {
@@ -610,14 +617,15 @@ export const toast_err_cannot_install = () => {
 
 export const install = async (app: AppMeta) => {
   try {
-    const data = await fetchAppData(app.index);
+    const { resolvePath, indexPath } = getResolvePathFunction(app.index);
+    const data = await fetchAppData(indexPath, resolvePath);
     const meta = { ...app, icon: undefined };
     // Only contains serializable values
     const ins: Installation = {
       id: app.id,
       meta,
       disabled: false,
-      can_update_automatically: true,
+      allow_page_reload: true,
       ...data,
     };
 
@@ -627,28 +635,6 @@ export const install = async (app: AppMeta) => {
     await local.setItem(app.id, serialized);
   } catch (e) {
     console.error("Cannot install app", e);
-    toast_err_cannot_install();
-  }
-};
-
-export const reinstall = async (id: string) => {
-  try {
-    let ins = installationOf(id);
-    if (!ins) throw new Error("installation not found");
-    const data = await fetchAppData(ins.meta.index);
-    // Only contains serializable values
-    ins = {
-      ...ins,
-      ...data,
-    };
-
-    setInstallations([ins, ...installations().filter((i) => i.id != id)]);
-    const serialized = serialize(ins);
-    await local.setItem(app.id, serialized);
-
-    // reset sandbox
-  } catch (e) {
-    console.error("Cannot reinstall app", e);
     toast_err_cannot_install();
   }
 };

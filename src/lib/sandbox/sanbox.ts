@@ -1,9 +1,14 @@
 import { ModuleSource } from "@endo/module-source";
 import { VirtualEnvironment } from "@locker/near-membrane-base";
 import "ses";
-import { reinstall } from "~/components/apps";
 import { createSESVirtualEnvironment } from "../ses-membrane";
+import VITE_CLIENT_MJS from "~/lib/dev-server/vite-client.mjs?raw";
+import TEST_MJS from "~/lib/dev-server/test.mjs?raw";
 
+import estraverse from "estraverse";
+import escodegen from "escodegen";
+import { parseModule } from "esprima-next";
+import { getResolvePathFunction, installationOf, proxyFetch } from "~/components/apps";
 
 declare global {
   interface Window {
@@ -11,19 +16,45 @@ declare global {
   }
 }
 
-export type SandboxOptions = {
-  id: string;
+// 
+const transformReplaceImport = (code: string) => {
+  // Parse the code using Esprima to generate the AST (Program node)
+  const ast = parseModule(code);
+
+  // Use estraverse to replace dynamic import statements
+  const result = estraverse.replace(ast as any, {
+    enter: function (node) {
+      if (node.type === "ImportExpression") {
+        return {
+          type: "CallExpression",
+          callee: { type: "Identifier", name: "allbase_import" },
+          arguments: [node.source], // Keep the original module source
+          optional: false,
+        };
+      }
+    },
+  });
+
+  // Generate the transformed code
+  const transformedCode = escodegen.generate(result);
+  return transformedCode;
 };
+
+
 
 export type Distortion = Map<any, () => any>;
 export class Sandbox {
+  private shadowRoot: ShadowRoot | undefined;
   private env: VirtualEnvironment | undefined;
+  private revoke: (() => void) | undefined;
   private distortion: Distortion | undefined;
   private compartment: Compartment | undefined;
+  
   // private shadowRootProxy: ShadowRoot | undefined;
   private modules : {
     specifier: string;
-    source: ModuleSource;
+    code: string;
+    cached_source?: ModuleSource
   }[] = []
 
   static lockdown() {
@@ -35,7 +66,9 @@ export class Sandbox {
     });
   }
 
-  constructor(public options: SandboxOptions) {
+  constructor(public id: string, public permissions: {
+    allow_page_reload: boolean
+  }) {
     Sandbox.lockdown();
   }
 
@@ -91,13 +124,20 @@ export class Sandbox {
     //   fetch: fetchWithNamespace,
     // };
 
-    const globals = {};
+    const ins = installationOf(this.id);
+    if (!ins) throw new Error("No installation found for " + this.id);
+
+    const { resolvePath, indexPath } = getResolvePathFunction(ins.meta.index);
     const this_sandbox = this;
     const compartment = new Compartment({
       __options__: true, 
       __evadeHtmlCommentTest__: true,
-      id: this.options.id,
-      globals,
+      id: this.id,
+      globals: {
+        allbase_import: async (dep: string) => {
+          return compartment.import(dep);
+        }
+      },
       modules: {
         'submodule/dependency': new ModuleSource(`
           export default 42;
@@ -107,39 +147,59 @@ export class Sandbox {
           console.log('moduleMapHook >', 'moduleSpecifier', moduleSpecifier);
           return undefined
       },
-      importHook(importSpecifier: string, referrerSpecifier: string) {
-          console.log('importHook >', 'please import', importSpecifier, 'from', referrerSpecifier);
-          return undefined
+      importHook: async (importSpecifier: string, referrerSpecifier: string) => {
+          // fetch
+          const path = resolvePath(importSpecifier)  
+          console.log('path', path);
+          const rawCode = await proxyFetch(path)
+          const code = transformReplaceImport(rawCode)
+        
+          return {
+            source: new ModuleSource(code),
+            importSpecifier,
+            compartment
+          }
+
       },
       importNowHook(importSpecifier: string, referrerSpecifier: string) {
         console.log('importNowHook >', 'please import', importSpecifier, 'from', referrerSpecifier, 'this.modules', this_sandbox.modules);
         const hmrModule = this_sandbox.modules.find(m => m.specifier === importSpecifier)
-        if (hmrModule) {
+        
+        if (
+          importSpecifier == "/@vite/client" ||
+          importSpecifier == "/src//@vite/client"
+        ) {
+          // import our own modified client
+          // which fixes some SES issues
+          // https://github.com/endojs/endo/issues/2633
+
+          // TODO: use transform instead
           return {
-            source: hmrModule.source,
+            source: new ModuleSource(transformReplaceImport(VITE_CLIENT_MJS)),
             specifier: importSpecifier,
             compartment, // reflexive
           }
         }
-        // _sandbox.modules
-        // if (importSpecifier === 'dependent') {
-        //   return {
-        //     source: new ModuleSource(`
-        //       import meaning from 'dependency';
-        //       export default meaning;
-        //     `),
-        //     specifier: 'submodule/dependent',
-        //     compartment, // reflexive
-        //   };
-        // } else if (importSpecifier === 'hel'){
-        //   return {
-        //     source: new ModuleSource(`
-        //       console.log('ok');
-        //     `),
-        //     specifier: 'submodule/hel',
-        //     compartment, // reflexive
-        //   }
-        // }
+
+        if (hmrModule) {
+          if (hmrModule.cached_source) {
+            return {
+              source: hmrModule.cached_source,
+              specifier: importSpecifier,
+              compartment, // reflexive
+            }
+          }
+          const source = new ModuleSource(transformReplaceImport(hmrModule.code))
+          hmrModule.cached_source = source;
+          
+          return {
+            source,
+            specifier: importSpecifier,
+            compartment, // reflexive
+          }
+        }
+
+        
       },
        /**
        * Resolve a module specifier relative to another module specifier.
@@ -179,36 +239,45 @@ export class Sandbox {
 
     this.compartment = compartment;
 
-    const env = createSESVirtualEnvironment(window, compartment, {
+    const { env, revoke } = createSESVirtualEnvironment(window, compartment, {
       distortionCallback(v) {
-        return this_sandbox.distortion?.get(v as any) ?? v;
+        if (!this_sandbox.distortion) throw new Error('distortion not initialized');
+        const distorted_v = this_sandbox.distortion.get(v as any);
+        // console.log('distorted_v', distorted_v, 'for', v)
+        return distorted_v ?? v;
       },
       globalObjectShape: window,
       endowments: Object.getOwnPropertyDescriptors({}),
     });
 
     this.env = env;
+    this.revoke = revoke;
     
     return this.compartment;
   }
 
   evaluate(code: string) {
-    const compartment = this.compartment ?? this.init();
-    return compartment.evaluate(code, {
-      __evadeHtmlCommentTest__: true,
-    });
+    
+      const compartment = this.compartment ?? this.init();
+      return compartment.evaluate(code, {
+        __evadeHtmlCommentTest__: true,
+      });
   }
 
   async import(code: string) {
-    const compartment = this.compartment ?? this.init();
-    const namespace = await compartment.import(code);
-    return namespace
+    
+      const compartment = this.compartment ?? this.init();
+      const namespace = await compartment.import(code);
+      return namespace
+   
   }
 
   importNow(specifier: string, code: string) {
+
+    
     const module= {
       specifier,
-      source: new ModuleSource(code),
+      code,
       // importMeta: {
       //   meta: { url: 'https://example.com/index.js' },
       // }
@@ -220,18 +289,22 @@ export class Sandbox {
     return namespace
   }
 
-  buildDistortion(shadowRoot: ShadowRoot) {
+  setShadowRoot(shadowRoot: ShadowRoot){
+    this.shadowRoot = shadowRoot;
+    this.buildDistortion();
+  }
 
+  buildDistortion() {
     const { get: host } = Object.getOwnPropertyDescriptor(
       ShadowRoot.prototype,
       "host"
     )!;
-  
+
     const { get: body } = Object.getOwnPropertyDescriptor(
       Document.prototype,
       "body"
     )!;
-  
+
     const { value: getElementById } = Object.getOwnPropertyDescriptor(
       Document.prototype,
       "getElementById"
@@ -242,53 +315,52 @@ export class Sandbox {
       "reload"
     )!;
 
-  const distortion: Distortion = new Map([
-    [
-      alert,
-      () => {
-        console.error("forbidden");
-      },
-    ],
-    [
-      body,
-      () => {
-        console.error("body is not accessible");
-      },
-    ],
-    [
-      host,
-      () => {
-        console.error("host is not accessible");
-      },
-    ],
-    [
-      getElementById,
-      (...args: any[]) => {
-        return shadowRoot.getElementById(
-          // @ts-ignore
-          ...args
-        );
-      },
-    ],
-    [reload,
-      async () => {
-        reinstall(this.options.id)
-      }
-    ]
-  ]);
+    const distortion: Distortion = new Map([
+      [
+        alert,
+        () => {
+          console.error("forbidden");
+        },
+      ],
+      [
+        body,
+        () => {
+          console.error("body is not accessible");
+        },
+      ],
+      [
+        host,
+        () => {
+          console.error("host is not accessible");
+        },
+      ],
+      [
+        getElementById,
+        (...args: any[]) => {
+          if (!this.shadowRoot) throw new Error("shadowRoot not set");
+          return this.shadowRoot.getElementById(
+            // @ts-ignore
+            ...args
+          );
+        },
+      ],
+      [reload, this.permissions.allow_page_reload ? reload : 
+        async () => {
+            console.error('forbidden');
+        }
+      ]
+    ]);
 
   
     this.distortion = distortion;
   }
 
-  // setProxyOnShadowRoot(shadowRoot: ShadowRoot) {
-  //   // this.shadowRootProxy = 
-  //   // this.membrane.wrap(shadowRoot)
-  // }
-
-  // getShadowRootProxy() {
-  //   return this.shadowRootProxy
-  // }
-
-
+  destroy(){
+    this.revoke?.();
+    this.compartment = undefined;
+    this.env = undefined;
+    this.distortion = undefined;
+    this.modules = [];
+    this.shadowRoot = undefined;
+  }
 }

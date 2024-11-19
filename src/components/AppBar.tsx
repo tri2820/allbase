@@ -40,7 +40,6 @@ function TabsIndicator() {
     ref.style.top = `${rect.top - 1}px`;
     ref.style.left = `${rect.left - 10}px`;
     const id = first.getAttribute("data-tab-trigger-id")!;
-    console.log("first id", first, id);
     setActiveTabId(id);
     setShow(true);
   });

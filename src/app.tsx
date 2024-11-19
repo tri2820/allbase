@@ -1,3 +1,4 @@
+import { ModuleSource } from "@endo/module-source";
 import "@fontsource/poppins/100.css";
 import "@fontsource/poppins/200.css";
 import "@fontsource/poppins/300.css";
@@ -16,9 +17,8 @@ import { onMount, Suspense } from "solid-js";
 import { Portal } from "solid-js/web";
 import "./app.css";
 import { installations, setInstallations } from "./components/apps";
-import { Auth } from "./components/Auth";
 import { local } from "./local";
-
+import { Auth } from "./components/Auth";
 export default function App() {
   onMount(async () => {
     const keys = await local.keys();

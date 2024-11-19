@@ -15,6 +15,7 @@
   "dependencies": {
     "@types/three": "^0.169.0",
     "three": "^0.169.0",
+    "vite-hot-client": "^0.2.3",
     "vite-plugin-singlefile": "^2.0.2"
   }
 }

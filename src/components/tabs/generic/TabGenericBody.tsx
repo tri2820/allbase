@@ -1,5 +1,5 @@
 import { onCleanup, onMount } from "solid-js";
-import { appMetas, bindShadowRoot, installationOf } from "~/components/apps";
+import { appMetas, installationOf, onUIReady } from "~/components/apps";
 
 export default function TabGenericBody(props: { app_id: string }) {
   const installation = installationOf(props.app_id);
@@ -12,7 +12,7 @@ export default function TabGenericBody(props: { app_id: string }) {
   let shadow: HTMLDivElement;
   onMount(async () => {
     const shadowRoot = shadow.attachShadow({ mode: "closed" });
-    bindShadowRoot(installation, shadowRoot);
+    onUIReady(installation.id, shadowRoot);
   });
 
   onCleanup(() => {
