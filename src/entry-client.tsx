@@ -1,7 +1,6 @@
 // @refresh reload
 import { mount, StartClient } from "@solidjs/start/client";
-import { local } from "./local";
-import { setInstallations } from "./components/apps";
+import "ses";
 
 let swReadyResolve: () => void;
 const swReady = new Promise((resolve) => {

@@ -1,5 +1,4 @@
 import { serialize, deserialize } from "seroval";
-import { IconTypes } from "solid-icons";
 import {
   BsBarChartFill,
   BsBoxes,
@@ -19,22 +18,12 @@ import {
 import { createSignal } from "solid-js";
 import { addTask, markComplete, RunningTaskData } from "~/components/tasks";
 import { compile, CompileResult } from "~/lib/compiler";
-import { Sandbox } from "~/lib/sandbox/sanbox";
+import { Distortion, Sandbox } from "~/lib/sandbox/sanbox";
 import Button from "./Button";
 import { local } from "~/local";
 import { showToast } from "~/toast";
-
-export type AppMeta = {
-  id: string;
-  name: string;
-  description: string;
-  readme: string;
-  categories: string[];
-  author_name: string;
-  icon: IconTypes;
-  backgroundColor: `#${string}`;
-  index: string;
-};
+import VITE_CLIENT_MJS from "~/lib/dev-server/vite-client.mjs?raw";
+import TEST_MJS from "~/lib/dev-server/test.mjs?raw";
 
 export const [installations, setInstallations] = createSignal<Installation[]>(
   []
@@ -451,46 +440,40 @@ export const bindShadowRoot = (ins: Installation, shadowRoot: ShadowRoot) => {
   const sandbox = new Sandbox({
     id: ins.id,
   });
-  sandbox.setProxyOnShadowRoot(shadowRoot);
-  sandbox.setDistortion({
-    get: (obj) => {
-      if (obj == document.body) {
-        throw new Error("document.body is not accessible");
-      }
 
-      if (obj == document.getElementById) {
-        return {
-          ok: false,
-          value: (...args: any[]) => {
-            return sandbox.getShadowRootProxy()!.getElementById(
-              // @ts-ignore
-              ...args
-            );
-          },
-        };
-      }
-
-      return {
-        ok: true,
-        value: undefined,
-      };
-    },
-  });
-
-  // Add resources
+  sandbox.buildDistortion(shadowRoot);
 
   shadowRoot.innerHTML = ins.body;
-
   console.log("add resources", ins.resources, ins.resources.length);
   for (const resource of ins.resources) {
-    if (resource.type === "css") {
+    if (resource.as == "css") {
       const style = document.createElement("style");
       style.innerHTML = resource.value;
       shadowRoot.appendChild(style);
-    } else if (resource.type === "js") {
+    } else if (resource.as === "js") {
       try {
-        console.log("evaluate", resource.type, resource.value);
-        sandbox.evaluate(resource.value);
+        if (resource.type === "module") {
+          if (resource.specifier == "/@vite/client") {
+            // import our own modified client
+            // which fixes some SES issues
+            // https://github.com/endojs/endo/issues/2633
+
+            // And supports loading the app, not AllBase itself
+            // --> Use distortion for this
+            const _ = sandbox.importNow(
+              resource.specifier,
+              VITE_CLIENT_MJS
+            ).default;
+          } else {
+            const namespace = sandbox.importNow(
+              resource.specifier,
+              resource.value
+            ).default;
+            console.log("imported", resource.specifier);
+          }
+        } else {
+          // sandbox.evaluate(resource.value);
+        }
       } catch (e) {
         console.error(e, resource.value);
       }
@@ -512,20 +495,28 @@ const fetchResources = async (
 ) => {
   const promises = [
     ...compiledResult.stylesheets.map(async (stylesheet) => {
+      const value = stylesheet.href
+        ? await fetchResource(resolvePath, stylesheet.href)
+        : stylesheet.content;
       return {
-        type: "css",
-        value: stylesheet.href
-          ? await fetchResource(resolvePath, stylesheet.href)
-          : stylesheet.content,
+        as: "css",
+        value,
       } as Resource;
     }),
 
     ...compiledResult.scripts.map(async (script) => {
+      let specifier = undefined;
+      // Maybe I can use the src (assume dev server uses absolute path) as specifier?
+      if (script.type == "module") specifier = script.src;
+      const value = script.src
+        ? await fetchResource(resolvePath, script.src)
+        : script.content;
+
       return {
-        type: "js",
-        value: script.src
-          ? await fetchResource(resolvePath, script.src)
-          : script.content,
+        as: "js",
+        value,
+        type: script.type,
+        specifier,
       } as Resource;
     }),
   ];
@@ -589,36 +580,76 @@ const fetchIndex = async (indexPath: string) => {
   if (!response.ok) throw new Error("Cannot fetch index");
   const html = await response.text();
   compiledResult = compile(html);
-  console.log("Compiled result:", compiledResult, html, proxyPath);
+  console.log("Compiled result:", {
+    compiledResult,
+    html,
+    proxyPath,
+  });
 
   return compiledResult;
 };
 
+export const fetchAppData = async (index: string) => {
+  const { resolvePath, indexPath } = getResolvePathFunction(index);
+  const compiledResult = await fetchIndex(indexPath);
+  const resources = await fetchResources(compiledResult, resolvePath);
+  return {
+    resources,
+    body: compiledResult.body,
+  };
+};
+
+export const toast_err_cannot_install = () => {
+  showToast({
+    title: "We couldn't install this app",
+    description:
+      "Mind trying again? If the problem continues, our team is here to help.",
+    type: "error",
+  });
+};
+
 export const install = async (app: AppMeta) => {
   try {
-    const { resolvePath, indexPath } = getResolvePathFunction(app.index);
-    const compiledResult = await fetchIndex(indexPath);
-    const resources = await fetchResources(compiledResult, resolvePath);
-
+    const data = await fetchAppData(app.index);
+    const meta = { ...app, icon: undefined };
     // Only contains serializable values
     const ins: Installation = {
       id: app.id,
+      meta,
       disabled: false,
-      resources,
-      body: compiledResult.body,
+      can_update_automatically: true,
+      ...data,
     };
 
-    setInstallations([...installations(), ins]);
+    setInstallations([ins, ...installations()]);
+    console.log("ins", ins);
     const serialized = serialize(ins);
     await local.setItem(app.id, serialized);
   } catch (e) {
-    console.error(e);
-    showToast({
-      title: "We couldn't install this app",
-      description:
-        "Mind trying again? If the problem continues, our team is here to help.",
-      type: "error",
-    });
+    console.error("Cannot install app", e);
+    toast_err_cannot_install();
+  }
+};
+
+export const reinstall = async (id: string) => {
+  try {
+    let ins = installationOf(id);
+    if (!ins) throw new Error("installation not found");
+    const data = await fetchAppData(ins.meta.index);
+    // Only contains serializable values
+    ins = {
+      ...ins,
+      ...data,
+    };
+
+    setInstallations([ins, ...installations().filter((i) => i.id != id)]);
+    const serialized = serialize(ins);
+    await local.setItem(app.id, serialized);
+
+    // reset sandbox
+  } catch (e) {
+    console.error("Cannot reinstall app", e);
+    toast_err_cannot_install();
   }
 };
 

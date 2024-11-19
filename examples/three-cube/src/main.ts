@@ -1,8 +1,8 @@
-import "./style.css";
+// import "./style.css";
 
 console.log('me running');
 const app = document.getElementById("app")!;
-app.innerHTML = '<div>Hello world</div>';
+app.innerHTML = '<div>s lol k k ol ooo xxo</div>';
 
 
 

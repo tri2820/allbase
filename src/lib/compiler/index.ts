@@ -33,9 +33,10 @@ const exampleHtml = `
 
 type RelativePath = string;
 // Define types for head and body elements
-interface ScriptElement {
+type ScriptElement = {
     src: RelativePath | null;
     content: string;
+    type: 'text/javascript' | 'module';
 }
 
 interface StylesheetElement {
@@ -88,7 +89,11 @@ export function compile(html: string): ExtractedHTML {
         [...doc.head.getElementsByTagName('script'),
         ...doc.body.getElementsByTagName('script')
         ]
-            .map(e => ({ src: e.getAttribute('src'), content: e.innerHTML.trim() }));
+            .map(e => ({ 
+                src: e.getAttribute('src'), 
+                content: e.innerHTML.trim(), 
+                type: (e.getAttribute('type') ?? 'text/javascript') as 'module' | 'text/javascript',
+            }));
 
 
 
