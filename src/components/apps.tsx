@@ -439,7 +439,7 @@ export function taskify<T>(f: (props: T) => Promise<void>) {
 export const sandboxes = new Map<string, Sandbox>();
 export const shadowRoots = new Map<string, ShadowRoot>();
 
-export const onUIReady = (id: string, shadowRoot: ShadowRoot) => {
+export const onUIReady = async (id: string, shadowRoot: ShadowRoot) => {
   const ins = installationOf(id);
   if (!ins) throw new Error("No installation found for " + id);
 
@@ -451,35 +451,54 @@ export const onUIReady = (id: string, shadowRoot: ShadowRoot) => {
   sandboxes.set(id, sandbox);
 
   sandbox.setShadowRoot(shadowRoot);
-  shadowRoot.innerHTML = ins.body;
-  console.log("add resources", ins.resources, ins.resources.length);
-  for (const resource of ins.resources) {
-    if (resource.as == "css") {
+
+  const headDiv = document.createElement("div");
+  headDiv.id = "head";
+
+  const bodyDiv = document.createElement("div");
+  bodyDiv.id = "body";
+  bodyDiv.innerHTML = ins.compiledResult.body;
+
+  const template = document.createElement("template");
+  template.content.appendChild(headDiv);
+  template.content.appendChild(bodyDiv);
+
+  shadowRoot.appendChild(template.content);
+
+  console.log("compiledResult", ins.compiledResult);
+  for (const stylesheet of ins.compiledResult.stylesheets) {
+    if (stylesheet.href) {
+      sandbox.import(stylesheet.href);
+    } else {
       const style = document.createElement("style");
-      style.innerHTML = resource.value;
+      style.innerHTML = stylesheet.content;
       shadowRoot.appendChild(style);
-    } else if (resource.as === "js") {
-      try {
-        if (resource.type === "module") {
-          const namespace = sandbox.importNow(
-            resource.specifier,
-            resource.value
-          ).default;
-          console.log("imported", resource.specifier);
-        } else {
-          // sandbox.evaluate(resource.value);
-        }
-      } catch (e) {
-        console.error(e, resource.value);
-      }
     }
   }
 
-  // try {
-  //   sandbox.importNow("test", TEST_MJS);
-  // } catch (e) {
-  //   console.error(e);
-  // }
+  for (const script of ins.compiledResult.scripts) {
+    if (script.type == "module") {
+      if (script.src) {
+        sandbox.import(script.src);
+      } else {
+        const randomIdentifier = crypto.randomUUID();
+        sandbox.cacheModule(randomIdentifier, script.content);
+        sandbox.import(randomIdentifier);
+      }
+    } else {
+      if (script.src) {
+        const src = script.src;
+        (async () => {
+          const code = await sandbox.fetch(src);
+          console.log("evaluate", src);
+          sandbox.evaluate(code);
+        })();
+      } else {
+        console.log("evaluate", script.content);
+        sandbox.evaluate(script.content);
+      }
+    }
+  }
 };
 
 export const proxyFetch = async (url: string) => {
@@ -494,42 +513,42 @@ const fetchResource = async (resolvePath: ResolvePath, path: string) => {
   return proxyFetch(absolutePath);
 };
 
-const fetchResources = async (
-  compiledResult: CompileResult,
-  resolvePath: ResolvePath
-) => {
-  const promises = [
-    ...compiledResult.stylesheets.map(async (stylesheet) => {
-      const value = stylesheet.href
-        ? await fetchResource(resolvePath, stylesheet.href)
-        : stylesheet.content;
-      return {
-        as: "css",
-        value,
-      } as Resource;
-    }),
+// const fetchResources = async (
+//   compiledResult: CompileResult,
+//   resolvePath: ResolvePath
+// ) => {
+//   const promises = [
+//     ...compiledResult.stylesheets.map(async (stylesheet) => {
+//       const value = stylesheet.href
+//         ? await fetchResource(resolvePath, stylesheet.href)
+//         : stylesheet.content;
+//       return {
+//         as: "css",
+//         value,
+//       } as Resource;
+//     }),
 
-    ...compiledResult.scripts.map(async (script) => {
-      let specifier = undefined;
-      // Maybe I can use the src (assume dev server uses absolute path) as specifier?
-      if (script.type == "module") specifier = script.src;
-      const value = script.src
-        ? await fetchResource(resolvePath, script.src)
-        : script.content;
+//     ...compiledResult.scripts.map(async (script) => {
+//       let specifier = undefined;
+//       // Maybe I can use the src (assume dev server uses absolute path) as specifier?
+//       if (script.type == "module") specifier = script.src;
+//       // const value = script.src
+//       //   ? await fetchResource(resolvePath, script.src)
+//       //   : script.content;
 
-      return {
-        as: "js",
-        value,
-        type: script.type,
-        specifier,
-      } as Resource;
-    }),
-  ];
+//       return {
+//         as: "js",
+//         value,
+//         type: script.type,
+//         specifier,
+//       } as Resource;
+//     }),
+//   ];
 
-  const data = await Promise.all(promises);
+//   const data = await Promise.all(promises);
 
-  return data;
-};
+//   return data;
+// };
 
 export const getResolvePathFunction = (index: string) => {
   let resolvePath: ResolvePath;
@@ -594,18 +613,6 @@ const fetchIndex = async (indexPath: string) => {
   return compiledResult;
 };
 
-export const fetchAppData = async (
-  indexPath: string,
-  resolvePath: ResolvePath
-) => {
-  const compiledResult = await fetchIndex(indexPath);
-  const resources = await fetchResources(compiledResult, resolvePath);
-  return {
-    resources,
-    body: compiledResult.body,
-  };
-};
-
 export const toast_err_cannot_install = () => {
   showToast({
     title: "We couldn't install this app",
@@ -618,7 +625,8 @@ export const toast_err_cannot_install = () => {
 export const install = async (app: AppMeta) => {
   try {
     const { resolvePath, indexPath } = getResolvePathFunction(app.index);
-    const data = await fetchAppData(indexPath, resolvePath);
+    const compiledResult = await fetchIndex(indexPath);
+
     const meta = { ...app, icon: undefined };
     // Only contains serializable values
     const ins: Installation = {
@@ -626,7 +634,7 @@ export const install = async (app: AppMeta) => {
       meta,
       disabled: false,
       allow_page_reload: true,
-      ...data,
+      compiledResult,
     };
 
     setInstallations([ins, ...installations()]);

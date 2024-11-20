@@ -3,6 +3,7 @@ import useOverlay from "./components/UseOverlay";
 import { AuthResult } from "@instantdb/core/dist/module/clientTypes";
 import { Profile } from "./components/database";
 import { IconTypes } from "solid-icons";
+import { CompileResult } from "./lib/compiler";
 
 export const bodyOverlay = useOverlay();
 export const sw: () => Omit<ServiceWorker, "postMessage"> & {
@@ -42,25 +43,25 @@ declare global {
         as: "css";
         value: string;
       }
-    | ({
+    | {
         as: "js";
-        value: string;
-      } & (
-        | {
-            type: "text/javascript";
-          }
-        | {
-            type: "module";
-            specifier: string;
-          }
-      ));
+        script:
+          | {
+              type: "text";
+              value: string;
+            }
+          | {
+              type: "src";
+              value: string;
+            };
+        type: "text/javascript" | "module";
+      };
   type Installation = {
     id: string;
     // TODO: Allow app icon to be images instead of functions (not serializable)
     meta: Omit<AppMeta, "icon">;
     disabled: boolean;
-    resources: Resource[];
-    body: string;
     allow_page_reload: boolean;
+    compiledResult: CompileResult;
   };
 }

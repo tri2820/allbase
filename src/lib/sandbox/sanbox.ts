@@ -16,8 +16,44 @@ declare global {
   }
 }
 
-// 
+function findImportPatternMatches(src: string) {
+  const importPattern = new RegExp(
+    '(^|[^.]|\\.\\.\\.)\\bimport(\\s*(?:\\(|/[/*]))',
+    'g'
+  );
+  
+  const matches = [];
+  for (const match of src.matchAll(importPattern)) {
+    matches.push({
+      match: match[0],
+      position: match.index,
+    });
+  }
+  
+  return matches;
+}
+
+
+function replaceImportWithAllBaseImFromMatches(src: string, matches: ReturnType<typeof findImportPatternMatches>) {
+  let updatedSrc = src;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    const { position, match } = matches[i];
+    const replacement = match.replace(/\bimport/, 'allbase_im');
+    updatedSrc =
+      updatedSrc.slice(0, position) +
+      replacement +
+      updatedSrc.slice(position + match.length);
+  }
+  return updatedSrc;
+}
+
+
 const transformReplaceImport = (code: string) => {
+  const before = findImportPatternMatches(code);
+  if (before.length === 0) {
+    return code;
+  }
+  
   // Parse the code using Esprima to generate the AST (Program node)
   const ast = parseModule(code);
 
@@ -27,7 +63,7 @@ const transformReplaceImport = (code: string) => {
       if (node.type === "ImportExpression") {
         return {
           type: "CallExpression",
-          callee: { type: "Identifier", name: "allbase_import" },
+          callee: { type: "Identifier", name: "allbase_im" },
           arguments: [node.source], // Keep the original module source
           optional: false,
         };
@@ -36,7 +72,20 @@ const transformReplaceImport = (code: string) => {
   });
 
   // Generate the transformed code
-  const transformedCode = escodegen.generate(result);
+  let transformedCode = escodegen.generate(result);
+
+  const afterAST = findImportPatternMatches(transformedCode);
+  if (afterAST.length > 0) {
+    // maybe there's "import(" pattern in comment
+    transformedCode = replaceImportWithAllBaseImFromMatches(transformedCode, afterAST);
+    
+    const afterFixComments = findImportPatternMatches(transformedCode);
+    if (afterFixComments.length > 0) {
+     console.error('Cannot fix import', transformedCode, afterFixComments)
+      throw new Error('Cannot fix import');
+    }
+  }
+
   return transformedCode;
 };
 
@@ -49,13 +98,13 @@ export class Sandbox {
   private revoke: (() => void) | undefined;
   private distortion: Distortion | undefined;
   private compartment: Compartment | undefined;
+  private resolvePath: ResolvePath | undefined;
   
   // private shadowRootProxy: ShadowRoot | undefined;
-  private modules : {
-    specifier: string;
-    code: string;
-    cached_source?: ModuleSource
-  }[] = []
+  private modules = new Map<string, {
+    source: ModuleSource
+  }>()
+
 
   static lockdown() {
     if (window.sesLockedDown) return;
@@ -70,6 +119,39 @@ export class Sandbox {
     allow_page_reload: boolean
   }) {
     Sandbox.lockdown();
+  }
+
+  async fetch(importSpecifier: string){
+    if (!this.resolvePath) throw new Error('resolvePath not initialized')
+    const path = this.resolvePath(importSpecifier)  
+    return await proxyFetch(path);
+  }
+
+  getCachedModule(specifier: string) {
+    const cached = this.modules.get(specifier);
+
+    if (cached) {
+      return {
+        source: cached.source,
+        specifier,
+        compartment: this.compartment, // reflexive
+      } 
+    }
+  }
+
+  async fetchAndCache(specifier: string) {
+    console.log('fetching...', specifier)
+    const code = await this.fetch(specifier)
+    console.log('fetched', specifier, code)
+    const module = {
+      source: new ModuleSource(transformReplaceImport(code)),
+      specifier,
+      compartment: this.compartment
+    }
+    
+    console.log('cache', {specifier, module, code});
+    this.modules.set(specifier, module)
+    return module
   }
 
   // lazily init when shadowRoot and stuffs have been all setup
@@ -124,82 +206,46 @@ export class Sandbox {
     //   fetch: fetchWithNamespace,
     // };
 
+    const source = new ModuleSource(transformReplaceImport(VITE_CLIENT_MJS))
+    this.modules.set("/@vite/client", { source })
+    this.modules.set("/src//@vite/client", { source })
+
     const ins = installationOf(this.id);
     if (!ins) throw new Error("No installation found for " + this.id);
 
     const { resolvePath, indexPath } = getResolvePathFunction(ins.meta.index);
+    this.resolvePath = resolvePath;
     const this_sandbox = this;
     const compartment = new Compartment({
       __options__: true, 
       __evadeHtmlCommentTest__: true,
       id: this.id,
       globals: {
-        allbase_import: async (dep: string) => {
+        allbase_im: async (dep: string) => {
           return compartment.import(dep);
-        }
+        },
+        Math,
       },
-      modules: {
-        'submodule/dependency': new ModuleSource(`
-          export default 42;
-        `),
-      },
-      moduleMapHook(moduleSpecifier: string) {
-          console.log('moduleMapHook >', 'moduleSpecifier', moduleSpecifier);
-          return undefined
-      },
+      // modules: {
+      //   'submodule/dependency': new ModuleSource(`
+      //     export default 42;
+      //   `),
+      // },
+      // moduleMapHook(moduleSpecifier: string) {
+      //     console.log('moduleMapHook >', 'moduleSpecifier', moduleSpecifier);
+      //     return undefined
+      // },
       importHook: async (importSpecifier: string, referrerSpecifier: string) => {
-          // fetch
-          const path = resolvePath(importSpecifier)  
-          console.log('path', path);
-          const rawCode = await proxyFetch(path)
-          const code = transformReplaceImport(rawCode)
-        
-          return {
-            source: new ModuleSource(code),
-            importSpecifier,
-            compartment
-          }
+        const cached = this_sandbox.getCachedModule(importSpecifier)
+        if (cached) return cached;
+        const module = await this_sandbox.fetchAndCache(importSpecifier)          
+        return module
 
       },
       importNowHook(importSpecifier: string, referrerSpecifier: string) {
         console.log('importNowHook >', 'please import', importSpecifier, 'from', referrerSpecifier, 'this.modules', this_sandbox.modules);
-        const hmrModule = this_sandbox.modules.find(m => m.specifier === importSpecifier)
-        
-        if (
-          importSpecifier == "/@vite/client" ||
-          importSpecifier == "/src//@vite/client"
-        ) {
-          // import our own modified client
-          // which fixes some SES issues
-          // https://github.com/endojs/endo/issues/2633
-
-          // TODO: use transform instead
-          return {
-            source: new ModuleSource(transformReplaceImport(VITE_CLIENT_MJS)),
-            specifier: importSpecifier,
-            compartment, // reflexive
-          }
-        }
-
-        if (hmrModule) {
-          if (hmrModule.cached_source) {
-            return {
-              source: hmrModule.cached_source,
-              specifier: importSpecifier,
-              compartment, // reflexive
-            }
-          }
-          const source = new ModuleSource(transformReplaceImport(hmrModule.code))
-          hmrModule.cached_source = source;
-          
-          return {
-            source,
-            specifier: importSpecifier,
-            compartment, // reflexive
-          }
-        }
-
-        
+        const module = this_sandbox.getCachedModule(importSpecifier)
+        return module
       },
        /**
        * Resolve a module specifier relative to another module specifier.
@@ -221,15 +267,12 @@ export class Sandbox {
        * @returns The fully resolved specifier of the module that we want to
        * import.
        */
-      resolveHook(importSpecifier: string, referrerSpecifier: string) {
-        console.log('resolveHook >', ' I want to import', importSpecifier, 'from', referrerSpecifier);
-        const path = referrerSpecifier.split('/');
-        path.pop();
-        path.push(...importSpecifier.split('/'));
-        const result = path.join('/')
-        console.log('resolveHook >', 'result', result);
-        return result;
+       resolveHook(importSpecifier: string, referrerSpecifier: string) {
+        const baseUrl = new URL(referrerSpecifier, 'http://example.com'); // Use a dummy base
+        const resolvedUrl = new URL(importSpecifier, baseUrl);
+        return resolvedUrl.pathname;
       },
+      
       importMetaHook: (_moduleSpecifier: string, meta: any) => {
         console.log('importMetaHook >', 'moduleSpecifier', _moduleSpecifier, 'meta', meta);
         meta.url = 'http://localhost:5173/';
@@ -257,36 +300,47 @@ export class Sandbox {
   }
 
   evaluate(code: string) {
-    
       const compartment = this.compartment ?? this.init();
       return compartment.evaluate(code, {
         __evadeHtmlCommentTest__: true,
+        // __evadeImportExpressionTest__: true
       });
   }
 
-  async import(code: string) {
-    
-      const compartment = this.compartment ?? this.init();
-      const namespace = await compartment.import(code);
-      return namespace
-   
+  cacheModule(specifier: string, code: string) {
+    this.modules.set(specifier, { source: new ModuleSource(transformReplaceImport(code)) })
   }
 
-  importNow(specifier: string, code: string) {
-
-    
-    const module= {
-      specifier,
-      code,
-      // importMeta: {
-      //   meta: { url: 'https://example.com/index.js' },
-      // }
+  importNow(specifier: string) {
+    if (specifier == '/@vite/client' || specifier == '/src//@vite/client') {
+      console.warn('Skipping import of vite client');
+      return;
     }
-    this.modules.push(module);
+    
+    try {
+      const compartment = this.compartment ?? this.init();
+      const namespace = compartment.importNow(specifier);
+      return namespace
+    } catch (error) {
+      console.error(error)
+    }
+    
+  }
 
-    const compartment = this.compartment ?? this.init();
-    const namespace = compartment.importNow(specifier);
-    return namespace
+  import(specifier: string) {
+    if (specifier == '/@vite/client' || specifier == '/src//@vite/client') {
+      console.warn('Skipping import of vite client');
+      return;
+    }
+    
+    try {
+      const compartment = this.compartment ?? this.init();
+      const namespace = compartment.import(specifier);
+      return namespace
+    } catch (error) {
+      console.error(error)
+    }
+    
   }
 
   setShadowRoot(shadowRoot: ShadowRoot){
@@ -310,9 +364,20 @@ export class Sandbox {
       "getElementById"
     )!;
 
+    
+    const { value: querySelector } = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      "querySelector"
+    )!;
+
     const { value: reload } = Object.getOwnPropertyDescriptor(
       location,
       "reload"
+    )!;
+
+    const { get: head } = Object.getOwnPropertyDescriptor(
+      Document.prototype,
+      "head"
     )!;
 
     const distortion: Distortion = new Map([
@@ -325,7 +390,8 @@ export class Sandbox {
       [
         body,
         () => {
-          console.error("body is not accessible");
+          if (!this.shadowRoot) throw new Error("shadowRoot not set");
+          return this.shadowRoot.getElementById('body');
         },
       ],
       [
@@ -344,11 +410,25 @@ export class Sandbox {
           );
         },
       ],
+      [
+        querySelector,
+        (...args: any[]) => {
+          if (!this.shadowRoot) throw new Error("shadowRoot not set");
+          return this.shadowRoot.querySelector(
+            // @ts-ignore
+            ...args
+          );
+        },
+      ],
       [reload, this.permissions.allow_page_reload ? reload : 
         async () => {
             console.error('forbidden');
         }
-      ]
+      ],
+      [head, () => {
+        if (!this.shadowRoot) throw new Error("shadowRoot not set");
+        return  this.shadowRoot.getElementById('head');
+      }]
     ]);
 
   
@@ -360,7 +440,7 @@ export class Sandbox {
     this.compartment = undefined;
     this.env = undefined;
     this.distortion = undefined;
-    this.modules = [];
+    this.modules.clear();
     this.shadowRoot = undefined;
   }
 }

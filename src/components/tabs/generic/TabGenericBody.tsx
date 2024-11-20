@@ -19,5 +19,5 @@ export default function TabGenericBody(props: { app_id: string }) {
     console.log("me destroyed!");
   });
 
-  return <div ref={shadow!} id="body" class="w-full h-full" />;
+  return <div ref={shadow!} class="w-full h-full" />;
 }
