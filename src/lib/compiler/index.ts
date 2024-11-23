@@ -34,79 +34,103 @@ const exampleHtml = `
 type RelativePath = string;
 // Define types for head and body elements
 type ScriptElement = {
-    src: RelativePath | null;
-    content: string;
-    type: 'text/javascript' | 'module';
-}
+  src: RelativePath | null;
+  content: string;
+  type: "text/javascript" | "module";
+};
 
 interface StylesheetElement {
-    href: RelativePath | null;
-    content: string;
+  href: RelativePath | null;
+  content: string;
 }
 
 interface MetaElement {
-    name: RelativePath;
-    content: string | null;
+  name: RelativePath;
+  content: string | null;
 }
 
 interface ExtractedHTML {
-    scripts: ScriptElement[]; // Combined scripts from both head and body
-    stylesheets: StylesheetElement[];
-    metas: MetaElement[];
-    body: string;
+  scripts: ScriptElement[]; // Combined scripts from both head and body
+  stylesheets: StylesheetElement[];
+  metas: MetaElement[];
+  body: string;
 }
 
 function sanitizeHTML(dirtyHTML: string): string {
-    return DOMPurify.sanitize(dirtyHTML, {
-        ALLOWED_TAGS: ['a', 'b', 'i', 'u', 'p', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'br', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img'],
-        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id'],
-        FORBID_ATTR: ['style'],
-        KEEP_CONTENT: false
-    });
+  return DOMPurify.sanitize(dirtyHTML, {
+    ALLOWED_TAGS: [
+      "a",
+      "b",
+      "i",
+      "u",
+      "p",
+      "div",
+      "span",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "ul",
+      "ol",
+      "li",
+      "br",
+      "hr",
+      "table",
+      "thead",
+      "tbody",
+      "tr",
+      "th",
+      "td",
+      "img",
+    ],
+    ALLOWED_ATTR: ["href", "src", "alt", "title", "class", "id"],
+    FORBID_ATTR: ["style"],
+    KEEP_CONTENT: false,
+  });
 }
-
 
 export function compile(html: string): ExtractedHTML {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, "text/html");
 
+  const stylesheets = [...doc.head.getElementsByTagName("link")]
+    .filter((e) => e.getAttribute("rel") === "stylesheet")
+    .map((e) => ({
+      href: e.getAttribute("href"),
+      content: e.innerHTML.trim(),
+    }));
 
-    const stylesheets =
-        [...doc.head.getElementsByTagName('link')]
-            .map(e => ({ href: e.getAttribute('href'), content: e.innerHTML.trim() }))
+  const metas = [...doc.head.getElementsByTagName("meta")]
+    .map((e) => {
+      const name = e.getAttribute("name");
+      if (!name) return;
+      return { name, content: e.getAttribute("content") };
+    })
+    .filter((x) => !!x);
 
-    const metas =
-        [...doc.head.getElementsByTagName('meta')]
-            .map(e => {
-                const name = e.getAttribute('name');
-                if (!name) return;
-                return { name, content: e.getAttribute('content') }
-            }
-            )
-            .filter(x => !!x);
+  const scripts = [
+    ...doc.head.getElementsByTagName("script"),
+    ...doc.body.getElementsByTagName("script"),
+  ].map((e) => ({
+    src: e.getAttribute("src"),
+    content: e.innerHTML.trim(),
+    type: (e.getAttribute("type") ?? "text/javascript") as
+      | "module"
+      | "text/javascript",
+  }));
 
-    const scripts =
-        [...doc.head.getElementsByTagName('script'),
-        ...doc.body.getElementsByTagName('script')
-        ]
-            .map(e => ({ 
-                src: e.getAttribute('src'), 
-                content: e.innerHTML.trim(), 
-                type: (e.getAttribute('type') ?? 'text/javascript') as 'module' | 'text/javascript',
-            }));
+  // Extract and sanitize body content
+  const bodyContent = doc.body.innerHTML;
+  const body = sanitizeHTML(bodyContent);
 
-
-
-    // Extract and sanitize body content
-    const bodyContent = doc.body.innerHTML;
-    const body = sanitizeHTML(bodyContent);
-
-    return {
-        scripts,
-        stylesheets,
-        metas,
-        body
-    };
+  return {
+    scripts,
+    stylesheets,
+    metas,
+    body,
+  };
 }
 
-export type CompileResult = ReturnType<typeof compile>
+export type CompileResult = ReturnType<typeof compile>;

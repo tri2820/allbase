@@ -468,6 +468,7 @@ export const onUIReady = async (id: string, shadowRoot: ShadowRoot) => {
   console.log("compiledResult", ins.compiledResult);
   for (const stylesheet of ins.compiledResult.stylesheets) {
     if (stylesheet.href) {
+      console.log("import", stylesheet);
       sandbox.import(stylesheet.href);
     } else {
       const style = document.createElement("style");
@@ -479,10 +480,12 @@ export const onUIReady = async (id: string, shadowRoot: ShadowRoot) => {
   for (const script of ins.compiledResult.scripts) {
     if (script.type == "module") {
       if (script.src) {
+        console.log("random import src", script);
         sandbox.import(script.src);
       } else {
         const randomIdentifier = crypto.randomUUID();
         sandbox.cacheModule(randomIdentifier, script.content);
+        console.log("random import", randomIdentifier, script);
         sandbox.import(randomIdentifier);
       }
     } else {
@@ -499,6 +502,19 @@ export const onUIReady = async (id: string, shadowRoot: ShadowRoot) => {
       }
     }
   }
+
+  // sandbox.cacheModule(
+  //   "test",
+  //   `
+  //   const i = new Image();
+  //   console.log('Image', Image, i);
+  //   i.src = 'vite.svg';
+  //   `
+  // );
+  // sandbox.import("test");
+
+  // // @ts-ignore
+  // window.sandbox = sandbox;
 };
 
 export const proxyFetch = async (url: string) => {
@@ -603,6 +619,7 @@ const fetchIndex = async (indexPath: string) => {
   const response = await fetch(proxyPath);
   if (!response.ok) throw new Error("Cannot fetch index");
   const html = await response.text();
+  console.log("html", html);
   compiledResult = compile(html);
   console.log("Compiled result:", {
     compiledResult,

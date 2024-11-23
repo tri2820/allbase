@@ -569,6 +569,7 @@ function setupWebSocket(protocol, hostAndPath, onCloseWithoutOpen) {
     { once: true }
   );
   socket2.addEventListener("message", async ({ data }) => {
+    console.debug(`[vite nested] received: ${data}`);
     handleMessage(JSON.parse(data));
   });
   socket2.addEventListener("close", async ({ wasClean }) => {
@@ -581,6 +582,7 @@ function setupWebSocket(protocol, hostAndPath, onCloseWithoutOpen) {
     if (hasDocument) {
       console.log(`[vite nested] server connection lost. Polling for restart...`);
       await waitForSuccessfulPing(protocol, hostAndPath);
+      debugger;
       location.reload();
     }
   });
@@ -601,6 +603,7 @@ const debounceReload = (time) => {
       timer = null;
     }
     timer = setTimeout(() => {
+      debugger;
       location.reload();
     }, time);
   };
@@ -628,6 +631,7 @@ const hmrClient = new HMRClient(
         console.info(
           `[hmr] ${acceptedPath} failed to apply HMR as it's within a circular import. Reloading page to reset the execution order. To debug and break the circular import, you can run \`vite --debug hmr\` to log the circular dependency path if a file change triggered it.`
         );
+        debugger
         pageReload();
       });
     }
@@ -649,6 +653,7 @@ async function handleMessage(payload) {
       notifyListeners("vite:beforeUpdate", payload);
       if (hasDocument) {
         if (isFirstUpdate && hasErrorOverlay()) {
+          debugger;
           location.reload();
           return;
         } else {
@@ -702,10 +707,13 @@ async function handleMessage(payload) {
           const pagePath = decodeURI(location.pathname);
           const payloadPath = base + payload.path.slice(1);
           if (pagePath === payloadPath || payload.path === "/index.html" || pagePath.endsWith("/") && pagePath + "index.html" === payloadPath) {
+            debugger
             pageReload();
           }
           return;
         } else {
+          console.debug(`[vite nested] full reload:`, JSON.stringify(payload));
+          debugger
           pageReload();
         }
       }

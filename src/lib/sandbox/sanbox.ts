@@ -8,7 +8,11 @@ import TEST_MJS from "~/lib/dev-server/test.mjs?raw";
 import estraverse from "estraverse";
 import escodegen from "escodegen";
 import { parseModule } from "esprima-next";
-import { getResolvePathFunction, installationOf, proxyFetch } from "~/components/apps";
+import {
+  getResolvePathFunction,
+  installationOf,
+  proxyFetch,
+} from "~/components/apps";
 
 declare global {
   interface Window {
@@ -18,10 +22,10 @@ declare global {
 
 function findImportPatternMatches(src: string) {
   const importPattern = new RegExp(
-    '(^|[^.]|\\.\\.\\.)\\bimport(\\s*(?:\\(|/[/*]))',
-    'g'
+    "(^|[^.]|\\.\\.\\.)\\bimport(\\s*(?:\\(|/[/*]))",
+    "g"
   );
-  
+
   const matches = [];
   for (const match of src.matchAll(importPattern)) {
     matches.push({
@@ -29,16 +33,18 @@ function findImportPatternMatches(src: string) {
       position: match.index,
     });
   }
-  
+
   return matches;
 }
 
-
-function replaceImportWithAllBaseImFromMatches(src: string, matches: ReturnType<typeof findImportPatternMatches>) {
+function replaceImportWithAllBaseImFromMatches(
+  src: string,
+  matches: ReturnType<typeof findImportPatternMatches>
+) {
   let updatedSrc = src;
   for (let i = matches.length - 1; i >= 0; i--) {
     const { position, match } = matches[i];
-    const replacement = match.replace(/\bimport/, 'allbase_im');
+    const replacement = match.replace(/\bimport/, "allbase_im");
     updatedSrc =
       updatedSrc.slice(0, position) +
       replacement +
@@ -47,13 +53,12 @@ function replaceImportWithAllBaseImFromMatches(src: string, matches: ReturnType<
   return updatedSrc;
 }
 
-
 const transformReplaceImport = (code: string) => {
   const before = findImportPatternMatches(code);
   if (before.length === 0) {
     return code;
   }
-  
+
   // Parse the code using Esprima to generate the AST (Program node)
   const ast = parseModule(code);
 
@@ -77,19 +82,32 @@ const transformReplaceImport = (code: string) => {
   const afterAST = findImportPatternMatches(transformedCode);
   if (afterAST.length > 0) {
     // maybe there's "import(" pattern in comment
-    transformedCode = replaceImportWithAllBaseImFromMatches(transformedCode, afterAST);
-    
+    transformedCode = replaceImportWithAllBaseImFromMatches(
+      transformedCode,
+      afterAST
+    );
+
     const afterFixComments = findImportPatternMatches(transformedCode);
     if (afterFixComments.length > 0) {
-     console.error('Cannot fix import', transformedCode, afterFixComments)
-      throw new Error('Cannot fix import');
+      console.error("Cannot fix import", transformedCode, afterFixComments);
+      throw new Error("Cannot fix import");
     }
   }
 
   return transformedCode;
 };
 
+function isHTML(input: string) {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(input, "text/html");
 
+    // If there are no valid nodes, it might not be HTML.
+    return doc.body.children.length > 0;
+  } catch (e) {
+    return false;
+  }
+}
 
 export type Distortion = Map<any, () => any>;
 export class Sandbox {
@@ -99,31 +117,36 @@ export class Sandbox {
   private distortion: Distortion | undefined;
   private compartment: Compartment | undefined;
   private resolvePath: ResolvePath | undefined;
-  
-  // private shadowRootProxy: ShadowRoot | undefined;
-  private modules = new Map<string, {
-    source: ModuleSource
-  }>()
 
+  // private shadowRootProxy: ShadowRoot | undefined;
+  private modules = new Map<
+    string,
+    {
+      source: ModuleSource;
+    }
+  >();
 
   static lockdown() {
     if (window.sesLockedDown) return;
     window.sesLockedDown = true;
     lockdown({
       overrideTaming: "severe",
-      errorTaming: 'unsafe-debug',
+      errorTaming: "unsafe-debug",
     });
   }
 
-  constructor(public id: string, public permissions: {
-    allow_page_reload: boolean
-  }) {
+  constructor(
+    public id: string,
+    public permissions: {
+      allow_page_reload: boolean;
+    }
+  ) {
     Sandbox.lockdown();
   }
 
-  async fetch(importSpecifier: string){
-    if (!this.resolvePath) throw new Error('resolvePath not initialized')
-    const path = this.resolvePath(importSpecifier)  
+  async fetch(importSpecifier: string) {
+    if (!this.resolvePath) throw new Error("resolvePath not initialized");
+    const path = this.resolvePath(importSpecifier);
     return await proxyFetch(path);
   }
 
@@ -135,23 +158,8 @@ export class Sandbox {
         source: cached.source,
         specifier,
         compartment: this.compartment, // reflexive
-      } 
+      };
     }
-  }
-
-  async fetchAndCache(specifier: string) {
-    console.log('fetching...', specifier)
-    const code = await this.fetch(specifier)
-    console.log('fetched', specifier, code)
-    const module = {
-      source: new ModuleSource(transformReplaceImport(code)),
-      specifier,
-      compartment: this.compartment
-    }
-    
-    console.log('cache', {specifier, module, code});
-    this.modules.set(specifier, module)
-    return module
   }
 
   // lazily init when shadowRoot and stuffs have been all setup
@@ -174,14 +182,12 @@ export class Sandbox {
     //   return fetch(url, ...args.slice(1));
     // });
 
-
-    
     // // TODO: Remove fetch and stuffs
     // const safeWindow = this.membrane.wrap(window);
     // const globals: any = {
     //   // Why does this give illegal invocation?
     //   // Because some function would have globalThis as `this`, instead of `window`
-    //   // Some even weirder and allow window or undefined as `this`, so 
+    //   // Some even weirder and allow window or undefined as `this`, so
     //   // setTimeout() -> doesn't work, this is set to globalThis
     //   // window.setTimeout() -> works, this is window
     //   // setTimeout.bind(window)() -> works, this is window
@@ -206,9 +212,11 @@ export class Sandbox {
     //   fetch: fetchWithNamespace,
     // };
 
-    const source = new ModuleSource(transformReplaceImport(VITE_CLIENT_MJS))
-    this.modules.set("/@vite/client", { source })
-    this.modules.set("/src//@vite/client", { source })
+    const source = new ModuleSource(transformReplaceImport(VITE_CLIENT_MJS));
+    this.modules.set("/@vite/client", { source });
+    this.modules.set("@vite/client", { source });
+    this.modules.set("/src//@vite/client", { source });
+    this.modules.set("http://localhost:5173/@vite/client", { source });
 
     const ins = installationOf(this.id);
     if (!ins) throw new Error("No installation found for " + this.id);
@@ -216,13 +224,36 @@ export class Sandbox {
     const { resolvePath, indexPath } = getResolvePathFunction(ins.meta.index);
     this.resolvePath = resolvePath;
     const this_sandbox = this;
+
     const compartment = new Compartment({
-      __options__: true, 
+      __options__: true,
       __evadeHtmlCommentTest__: true,
       id: this.id,
       globals: {
         allbase_im: async (dep: string) => {
-          return compartment.import(dep);
+          console.log("start import...", dep);
+          const { namespace } = await compartment.import(dep);
+
+          const descDefault = Object.getOwnPropertyDescriptor(
+            namespace,
+            "default"
+          )!;
+          console.log(
+            "allbase_im",
+            dep,
+            namespace,
+            descDefault,
+            descDefault.value,
+            descDefault.get
+          );
+
+          // await new Promise(r => setTimeout(r, 1000));
+          const obj = Object.create(null);
+          for (const key in namespace) {
+            obj[key] = namespace[key];
+          }
+
+          return obj;
         },
         Math,
       },
@@ -235,19 +266,66 @@ export class Sandbox {
       //     console.log('moduleMapHook >', 'moduleSpecifier', moduleSpecifier);
       //     return undefined
       // },
-      importHook: async (importSpecifier: string, referrerSpecifier: string) => {
-        const cached = this_sandbox.getCachedModule(importSpecifier)
+      importHook: async (
+        importSpecifier: string,
+        referrerSpecifier: string
+      ) => {
+        console.log(
+          "importHook >",
+          "please import",
+          importSpecifier,
+          "from",
+          referrerSpecifier,
+          "this.modules",
+          this_sandbox.modules
+        );
+        const cached = this_sandbox.getCachedModule(importSpecifier);
         if (cached) return cached;
-        const module = await this_sandbox.fetchAndCache(importSpecifier)          
-        return module
+        const code = await this_sandbox.fetch(importSpecifier);
+        let module;
+        if (code.includes("vite.svg")) {
+          console.warn("vite svg code", {
+            code,
+            importSpecifier,
+          });
+        }
 
+        // if (importSpecifier.endsWith(".svg")) {
+        //   return {
+        //     source: new ModuleSource(`export default "/vite.svg"`),
+        //     specifier: importSpecifier,
+        //     compartment: this.compartment,
+        //   };
+        // }
+
+        try {
+          module = {
+            source: new ModuleSource(transformReplaceImport(code)),
+            specifier: importSpecifier,
+            compartment: this.compartment,
+          };
+        } catch (e) {
+          console.error("e", e, importSpecifier, code);
+          // return code;
+        }
+
+        return module;
       },
       importNowHook(importSpecifier: string, referrerSpecifier: string) {
-        console.log('importNowHook >', 'please import', importSpecifier, 'from', referrerSpecifier, 'this.modules', this_sandbox.modules);
-        const module = this_sandbox.getCachedModule(importSpecifier)
-        return module
+        console.log(
+          "importNowHook >",
+          "please import",
+          importSpecifier,
+          "from",
+          referrerSpecifier,
+          "this.modules",
+          this_sandbox.modules
+        );
+        const module = this_sandbox.fetch(importSpecifier);
+        this.modules.set(importSpecifier, module);
+        return module;
       },
-       /**
+      /**
        * Resolve a module specifier relative to another module specifier.
        *
        * For example, if we're currently inside a module at `a/b/c.mjs` and we
@@ -267,83 +345,115 @@ export class Sandbox {
        * @returns The fully resolved specifier of the module that we want to
        * import.
        */
-       resolveHook(importSpecifier: string, referrerSpecifier: string) {
-        const baseUrl = new URL(referrerSpecifier, 'http://example.com'); // Use a dummy base
+      resolveHook(importSpecifier: string, referrerSpecifier: string) {
+        const baseUrl = new URL(referrerSpecifier, "http://localhost:5173"); // Use a dummy base, could very well be http://example.com, only at this place
         const resolvedUrl = new URL(importSpecifier, baseUrl);
-        return resolvedUrl.pathname;
+        const result = resolvedUrl
+          .toString()
+          .replace(/^http:\/\/example\.com\//, "");
+        console.log(
+          "resolve",
+          importSpecifier,
+          referrerSpecifier,
+          "to",
+          result
+        );
+        return result;
       },
-      
+
       importMetaHook: (_moduleSpecifier: string, meta: any) => {
-        console.log('importMetaHook >', 'moduleSpecifier', _moduleSpecifier, 'meta', meta);
-        meta.url = 'http://localhost:5173/';
-        
+        const url = new URL(
+          _moduleSpecifier,
+          "http://localhost:5173"
+        ).toString();
+        console.log("importMetaHook", {
+          url,
+          _moduleSpecifier,
+          meta,
+        });
+        meta.url = url;
       },
     });
 
     this.compartment = compartment;
 
+    // HTMLElementProtoStyleGetter
     const { env, revoke } = createSESVirtualEnvironment(window, compartment, {
       distortionCallback(v) {
-        if (!this_sandbox.distortion) throw new Error('distortion not initialized');
+        if (!this_sandbox.distortion)
+          throw new Error("distortion not initialized");
+
         const distorted_v = this_sandbox.distortion.get(v as any);
         // console.log('distorted_v', distorted_v, 'for', v)
         return distorted_v ?? v;
       },
       globalObjectShape: window,
       endowments: Object.getOwnPropertyDescriptors({}),
+
+      liveTargetCallback(target, targetTraits) {
+        // Is this the right way to let style be updated?
+        // Relevant: https://github.com/salesforce/near-membrane/blob/8fd3afa433888438951dda1c709f96a967f0bcbe/test/dom/live-object.spec.js#L13
+        // https://github.com/salesforce/near-membrane/issues/433
+        return target instanceof CSSStyleDeclaration;
+      },
     });
 
     this.env = env;
     this.revoke = revoke;
-    
+
     return this.compartment;
   }
 
   evaluate(code: string) {
-      const compartment = this.compartment ?? this.init();
-      return compartment.evaluate(code, {
-        __evadeHtmlCommentTest__: true,
-        // __evadeImportExpressionTest__: true
-      });
+    const compartment = this.compartment ?? this.init();
+    return compartment.evaluate(code, {
+      __evadeHtmlCommentTest__: true,
+      // __evadeImportExpressionTest__: true
+    });
   }
 
   cacheModule(specifier: string, code: string) {
-    this.modules.set(specifier, { source: new ModuleSource(transformReplaceImport(code)) })
+    this.modules.set(specifier, {
+      source: new ModuleSource(transformReplaceImport(code)),
+    });
   }
 
   importNow(specifier: string) {
-    if (specifier == '/@vite/client' || specifier == '/src//@vite/client') {
-      console.warn('Skipping import of vite client');
+    if (
+      specifier == "/@vite/client" ||
+      specifier == "/src//@vite/client" ||
+      specifier == "@vite/client" ||
+      specifier == "http://localhost:5173/@vite/client"
+    ) {
+      console.warn("Skipping import of vite client");
       return;
     }
-    
+
     try {
       const compartment = this.compartment ?? this.init();
       const namespace = compartment.importNow(specifier);
-      return namespace
+      return namespace;
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-    
   }
 
   import(specifier: string) {
-    if (specifier == '/@vite/client' || specifier == '/src//@vite/client') {
-      console.warn('Skipping import of vite client');
+    if (specifier == "/@vite/client" || specifier == "/src//@vite/client") {
+      console.warn("Skipping import of vite client");
       return;
     }
-    
+
     try {
       const compartment = this.compartment ?? this.init();
       const namespace = compartment.import(specifier);
-      return namespace
+      return namespace;
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
-    
   }
 
-  setShadowRoot(shadowRoot: ShadowRoot){
+  setShadowRoot(shadowRoot: ShadowRoot) {
     this.shadowRoot = shadowRoot;
     this.buildDistortion();
   }
@@ -364,7 +474,6 @@ export class Sandbox {
       "getElementById"
     )!;
 
-    
     const { value: querySelector } = Object.getOwnPropertyDescriptor(
       Document.prototype,
       "querySelector"
@@ -380,6 +489,12 @@ export class Sandbox {
       "head"
     )!;
 
+    const imageSrcDesc = Object.getOwnPropertyDescriptor(
+      Image.prototype,
+      "src"
+    )!;
+    const imageSrcSet = imageSrcDesc.set!;
+
     const distortion: Distortion = new Map([
       [
         alert,
@@ -391,7 +506,7 @@ export class Sandbox {
         body,
         () => {
           if (!this.shadowRoot) throw new Error("shadowRoot not set");
-          return this.shadowRoot.getElementById('body');
+          return this.shadowRoot.getElementById("body");
         },
       ],
       [
@@ -420,22 +535,36 @@ export class Sandbox {
           );
         },
       ],
-      [reload, this.permissions.allow_page_reload ? reload : 
-        async () => {
-            console.error('forbidden');
-        }
+      [
+        reload,
+        this.permissions.allow_page_reload
+          ? () => {
+              location.reload();
+            }
+          : async () => {
+              console.error("forbidden");
+            },
       ],
-      [head, () => {
-        if (!this.shadowRoot) throw new Error("shadowRoot not set");
-        return  this.shadowRoot.getElementById('head');
-      }]
+      [
+        head,
+        () => {
+          if (!this.shadowRoot) throw new Error("shadowRoot not set");
+          return this.shadowRoot.getElementById("head");
+        },
+      ],
+      [
+        imageSrcSet,
+        function (this: HTMLImageElement, path: string) {
+          const url = new URL(path, "http://localhost:5173").toString();
+          imageSrcSet.bind(this)(url);
+        },
+      ],
     ]);
 
-  
     this.distortion = distortion;
   }
 
-  destroy(){
+  destroy() {
     this.revoke?.();
     this.compartment = undefined;
     this.env = undefined;
@@ -444,3 +573,11 @@ export class Sandbox {
     this.shadowRoot = undefined;
   }
 }
+
+// compartment.import {
+// const module_source = importHook()
+// magic
+// return namespace
+// namespace is stupid (get not value)
+// }
+// importHook return ModuleSource
