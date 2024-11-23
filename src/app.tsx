@@ -12,13 +12,15 @@ import { Toast } from "@kobalte/core/toast";
 import { Link, MetaProvider, Title } from "@solidjs/meta";
 import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
-import { deserialize } from "seroval";
 import { onMount, Suspense } from "solid-js";
 import { Portal } from "solid-js/web";
 import "./app.css";
-import { installations, setInstallations } from "./components/apps";
-import { local } from "./local";
+import { transform } from "./lib/sandbox/transform";
 import { Auth } from "./components/Auth";
+import { local } from "./local";
+import { deserialize } from "seroval";
+import { installations, setInstallations } from "./components/apps";
+
 export default function App() {
   onMount(async () => {
     const keys = await local.keys();
@@ -36,6 +38,19 @@ export default function App() {
             <Title>AllBase</Title>
             <Link rel="canonical" href="http://allbase.app/" />
           </div>
+
+          {/* <script
+            type="module"
+            innerHTML={`console.log("This works", import.meta.url);
+              export class Test  {
+              constructor() {
+                console.log("This does not work", import.meta.url);
+              }
+              };
+              new Test()
+              
+              `}
+          /> */}
 
           <Suspense>
             <Auth>{props.children}</Auth>

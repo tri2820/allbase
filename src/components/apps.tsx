@@ -23,6 +23,7 @@ import Button from "./Button";
 import { local } from "~/local";
 import { showToast } from "~/toast";
 import TEST_MJS from "~/lib/dev-server/test.mjs?raw";
+import VITE_CLIENT_MJS from "~/lib/dev-server/vite-client.mjs?raw";
 
 export const [installations, setInstallations] = createSignal<Installation[]>(
   []
@@ -503,15 +504,10 @@ export const onUIReady = async (id: string, shadowRoot: ShadowRoot) => {
     }
   }
 
-  // sandbox.cacheModule(
-  //   "test",
-  //   `
-  //   const i = new Image();
-  //   console.log('Image', Image, i);
-  //   i.src = 'vite.svg';
-  //   `
-  // );
+  // sandbox.cacheModule("test", VITE_CLIENT_MJS);
   // sandbox.import("test");
+
+  // sandbox.evaluate('const x = "<-- Hello -->"');
 
   // // @ts-ignore
   // window.sandbox = sandbox;

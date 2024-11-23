@@ -1,29 +1,4 @@
-const context = ( () => {
-  if (typeof globalThis !== "undefined") {
-      return globalThis;
-  } else if (typeof self !== "undefined") {
-      return self;
-  } else if (typeof window !== "undefined") {
-      return window;
-  } else {
-      return Function("return this")();
-  }
-}
-)();
-const defines = {};
-Object.keys(defines).forEach( (key) => {
-  const segments = key.split(".");
-  let target = context;
-  for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
-      if (i === segments.length - 1) {
-          target[segment] = defines[key];
-      } else {
-          target = target[segment] || (target[segment] = {});
-      }
-  }
-}
-);
+import "/node_modules/vite/dist/client/env.mjs";
 
 class HMRContext {
   constructor(hmrClient, ownerPath) {
@@ -484,6 +459,8 @@ class ErrorOverlay extends HTMLElement {
     if (!linkFiles) {
       el.textContent = text;
     } else {
+      console.error('bitch')
+      console.trace()
       let curIndex = 0;
       let match;
       fileRE.lastIndex = 0;
@@ -496,6 +473,11 @@ class ErrorOverlay extends HTMLElement {
           link.textContent = file;
           link.className = "file-link";
           link.onclick = () => {
+            try {
+              console.log("opening in editor", import.meta.url);
+            } catch (e) {
+              console.error("x", e);
+            }
             // fetch(
             //   new URL(
             //     `${base$1}__open-in-editor?file=${encodeURIComponent(file)}`,
