@@ -2,8 +2,6 @@ import { ModuleSource } from "@endo/module-source";
 import { VirtualEnvironment } from "@locker/near-membrane-base";
 import "ses";
 import { createSESVirtualEnvironment } from "../ses-membrane";
-import VITE_CLIENT_MJS from "~/lib/dev-server/vite-client.mjs?raw";
-import TEST_MJS from "~/lib/dev-server/test.mjs?raw";
 
 import {
   getResolvePathFunction,
@@ -129,7 +127,7 @@ export class Sandbox {
       __options__: true,
       id: this.id,
       globals: {
-        allbase_import_meta: {
+        allbase_dynamic_importport_meta: {
           url: (specifier: string) => {
             const url = new URL(specifier, "http://localhost:5173").toString();
             return url;
@@ -140,7 +138,7 @@ export class Sandbox {
             );
           },
         },
-        allbase_im: async (dep: string) => {
+        allbase_dynamic_import: async (dep: string) => {
           console.log("start import...", dep);
           const { namespace } = await compartment.import(dep);
 
@@ -149,7 +147,7 @@ export class Sandbox {
             "default"
           )!;
           console.log(
-            "allbase_im",
+            "allbase_dynamic_import",
             dep,
             namespace,
             descDefault,
@@ -184,39 +182,13 @@ export class Sandbox {
         const cached = this_sandbox.getCachedModule(importSpecifier);
         if (cached) return cached;
         const code = await this_sandbox.fetch(importSpecifier);
-        let module;
-
-        // if (
-        //   importSpecifier == "/@vite/client" ||
-        //   importSpecifier == "/src//@vite/client" ||
-        //   importSpecifier == "@vite/client" ||
-        //   importSpecifier == "http://localhost:5173/@vite/client"
-        // ) {
-        //   console.warn("Import of vite client", module);
-        //   const { transformedCode: x } = createModuleSource(
-        //     importSpecifier,
-        //     code
-        //   );
-        //   console.log("x", x);
-        //   const { moduleSource } = createModuleSource(
-        //     importSpecifier,
-        //     VITE_CLIENT_MJS
-        //   );
-        //   module = {
-        //     source: moduleSource,
-        //     specifier: importSpecifier,
-        //     compartment: this.compartment,
-        //   };
-        // } else {
         const { moduleSource } = createModuleSource(importSpecifier, code);
-        module = {
+        return {
           source: moduleSource,
           specifier: importSpecifier,
           compartment: this.compartment,
         };
-        // }
 
-        return module;
       },
       importNowHook(importSpecifier: string, referrerSpecifier: string) {
         console.log("importNowHook", importSpecifier);

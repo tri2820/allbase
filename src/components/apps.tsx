@@ -503,14 +503,6 @@ export const onUIReady = async (id: string, shadowRoot: ShadowRoot) => {
       }
     }
   }
-
-  // sandbox.cacheModule("test", VITE_CLIENT_MJS);
-  // sandbox.import("test");
-
-  // sandbox.evaluate('const x = "<-- Hello -->"');
-
-  // // @ts-ignore
-  // window.sandbox = sandbox;
 };
 
 export const proxyFetch = async (url: string) => {

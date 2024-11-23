@@ -24,7 +24,7 @@ function replaceImportWithAllBaseImFromMatches(
   let updatedSrc = src;
   for (let i = matches.length - 1; i >= 0; i--) {
     const { position, match } = matches[i];
-    const replacement = match.replace(/\bimport/, "allbase_im");
+    const replacement = match.replace(/\bimport/, "allbase_dynamic_import");
     updatedSrc =
       updatedSrc.slice(0, position) +
       replacement +
@@ -37,7 +37,7 @@ export function node_transform_dynamic_import(node: Node): Node | undefined {
   if (node.type === "ImportExpression") {
     return {
       type: "CallExpression",
-      callee: { type: "Identifier", name: "allbase_im" },
+      callee: { type: "Identifier", name: "allbase_dynamic_import" },
       arguments: [node.source], // Keep the original module source
       optional: false,
     };

@@ -20,7 +20,7 @@ export const mk_node_transform_import_meta =
             type: "MemberExpression",
             object: {
               type: "Identifier",
-              name: "allbase_import_meta",
+              name: "allbase_dynamic_importport_meta",
             },
             property: node.property,
             computed: node.computed,

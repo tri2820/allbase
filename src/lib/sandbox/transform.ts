@@ -34,7 +34,7 @@ export const transform = (specifier: string, code: string) => {
 
     const result = code_transforms.reduce((n, t) => t(n), newCode);
 
-    const regex = /allbase_import_meta/g;
+    const regex = /allbase_dynamic_importport_meta/g;
     const contextLength = 50;
     const matches = [];
 
