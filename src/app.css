@@ -195,7 +195,7 @@ body {
 }
 
 .v-main {
-  @apply bg-[#0f0f0f];
+  @apply bg-neutral-930;
 }
 
 .v-hover-highlight {

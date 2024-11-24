@@ -5,8 +5,8 @@
 #
 
 <p align="center">
-  A modern and powerful workOS for your team.<br>
-  AllBase can be extended with third-party apps—just like VS Code!
+  All your team needs to get things done.<br>
+  Imply can be extended with third-party apps—just like VS Code!
 </p>
 
 #
@@ -14,14 +14,14 @@
 <br />
 
 <p align="center">
-  <img src="/public/screenshot.svg"/>
+  <img src="/public/screenshot.png"/>
 </p>
 
 #
 
-## Why AllBase?
+## Why Imply?
 
-AllBase fits any workflow, making it easy for teams to stay organized. It brings all your important apps together in one place, helping you work better and faster.
+Imply fits any workflow, making it easy for teams to stay organized. It brings all your important apps together in one place, helping you work better and faster.
 
 No more wasting money on unnecessary software or dealing with data silos!
 
@@ -29,7 +29,7 @@ No more wasting money on unnecessary software or dealing with data silos!
 
 ### For Teams:
 
-- All Your Apps in One Place
+- All Your Tools in One Place
 - Real-Time Collaboration
 - Adaptable to Any Workflow
 
@@ -41,10 +41,10 @@ No more wasting money on unnecessary software or dealing with data silos!
 
 ## Performance
 
-Third-party apps are **secured** and **lightning fast**. Each app runs in an isolated sandbox with limited access to the DOM and Web APIs. They are given the same level of performance and accessibility as AllBase itself.
+Third-party apps are **secured** and **lightning fast**. Each app runs in an isolated sandbox with limited access to the DOM and Web APIs. They are given the same level of performance and accessibility as Imply itself.
 
 > [!IMPORTANT]  
-> AllBase is still a work in progress. The security layer is implemented but has not safeguarded all Web APIs.
+> Imply is still a work in progress. The security layer is implemented but has not safeguarded all Web APIs.
 
 ## Getting Started
 
@@ -64,8 +64,8 @@ Third-party apps are **secured** and **lightning fast**. Each app runs in an iso
 
 ## Proudly Open Source
 
-AllBase is an open-source project. We value contributions and feedback. Join our community and help us shape the future of collaborative work!
+Imply is an open-source project. We value contributions and feedback. Join our community and help us shape the future of collaborative work!
 
 ## Support
 
-For any questions or support, please feel free to reach out via **vantri@duck.com**.
+For any questions or support, please feel free to reach out via **support@imply.app**.

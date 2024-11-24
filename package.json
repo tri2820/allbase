@@ -1,10 +1,10 @@
 {
-  "name": "allbase",
+  "name": "imply",
   "type": "module",
   "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
-    "start": "vinxi start",
+    "start": "vinxi start"
   },
   "dependencies": {
     "@endo/module-source": "^1.1.2",

@@ -52,11 +52,11 @@ The Communication Hub centralizes team messaging, providing an efficient, real-t
 - File sharing and preview options for faster collaboration.
     `,
     categories: ["Communication", "Collaboration"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsChatFill,
     backgroundColor: "#129aab",
     // index:
-    //   "https://github.com/tri2820/allbase/blob/main/examples/three-cube/dist/index.html",
+    //   "https://github.com/tri2820/imply/blob/main/examples/three-cube/dist/index.html",
     index: "http://localhost:5173/index.html",
   },
   {
@@ -81,11 +81,11 @@ A comprehensive project management tool, the Project Management Board organizes 
 - Notifications and comments for real-time updates.
     `,
     categories: ["Productivity", "Project Management"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsKanban,
     backgroundColor: "#fa3a4a",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/project-management-board/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/project-management-board/dist/index.html",
   },
   {
     id: "0000-0000-0000-0003",
@@ -108,11 +108,11 @@ Collaborative Notes allows team members to create, edit, and share notes in real
 - Export options for PDF, Word, or Markdown.
     `,
     categories: ["Productivity", "Note-taking"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsPenFill,
     backgroundColor: "#0ba749",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/collaborative-notes/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/collaborative-notes/dist/index.html",
   },
   {
     id: "0000-0000-0000-0005",
@@ -136,11 +136,11 @@ The Whiteboard app offers a digital space for brainstorming and visual collabora
 - Export to PDF or image formats for easy sharing.
     `,
     categories: ["Productivity", "Collaboration"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsCursorFill,
     backgroundColor: "#fd6005",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/whiteboard/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/whiteboard/dist/index.html",
   },
   {
     id: "0000-0000-0000-0006",
@@ -163,11 +163,11 @@ The Financial Ledger app is designed for small businesses and accounting teams, 
 - Integration with payroll and expense tracking for consolidated financials.
     `,
     categories: ["Finance", "Accounting"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsPiggyBankFill,
     backgroundColor: "#ffaa00",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/financial-ledger/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/financial-ledger/dist/index.html",
   },
   {
     id: "0000-0000-0000-0007",
@@ -191,11 +191,11 @@ The Inventory Management app simplifies stock tracking and helps businesses avoi
 - Reporting on stock history and movements.
     `,
     categories: ["Inventory", "Operations"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsBoxes,
     backgroundColor: "#ac39ac",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/inventory-management/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/inventory-management/dist/index.html",
   },
   {
     id: "0000-0000-0000-0008",
@@ -219,11 +219,11 @@ The Order Management app enables efficient tracking of sales and purchase orders
 - Reporting on sales trends and order history.
     `,
     categories: ["Sales", "Procurement"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsTruck,
     backgroundColor: "#3e95ef",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/order-management/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/order-management/dist/index.html",
   },
   {
     id: "0000-0000-0000-0009",
@@ -247,11 +247,11 @@ The Payroll and HR app streamlines HR management by tracking employee data, atte
 - Employee database with personal and contact details.
     `,
     categories: ["HR", "Payroll"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsPersonBadgeFill,
     backgroundColor: "#ff6347",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/payroll-hr/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/payroll-hr/dist/index.html",
   },
   {
     id: "0000-0000-0000-0011",
@@ -275,11 +275,11 @@ The CRM app provides a platform to track and organize customer data, manage inte
 - Reports on customer acquisition and engagement.
     `,
     categories: ["Sales", "Customer Management"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsPeopleFill,
     backgroundColor: "#e6739f",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/crm/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/crm/dist/index.html",
   },
   {
     id: "0000-0000-0000-0012",
@@ -303,11 +303,11 @@ The Sales Tracker app enables users to monitor and analyze sales data. Track KPI
 - Export sales data for deeper analysis.
     `,
     categories: ["Sales", "Analytics"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsGraphUp,
     backgroundColor: "#f98b10",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/sales-tracker/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/sales-tracker/dist/index.html",
   },
   {
     id: "0000-0000-0000-0013",
@@ -331,11 +331,11 @@ The Expense Tracker app enables businesses to record, categorize, and monitor ex
 - Visual spending trends for better financial planning.
     `,
     categories: ["Finance", "Expense Management"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsWalletFill,
     backgroundColor: "#3eb57a",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/expense-tracker/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/expense-tracker/dist/index.html",
   },
   {
     id: "0000-0000-0000-0014",
@@ -359,11 +359,11 @@ The Budget Planner app is a financial planning tool to help manage resources and
 - Reporting on budget performance.
     `,
     categories: ["Finance", "Planning"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsCalculatorFill,
     backgroundColor: "#4caf50",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/budget-planner/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/budget-planner/dist/index.html",
   },
   {
     id: "0000-0000-0000-0017",
@@ -386,11 +386,11 @@ The Performance Review app is designed for HR teams to track and manage employee
 - Reports on team and individual performance.
     `,
     categories: ["HR", "Performance Management"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsBarChartFill,
     backgroundColor: "#9c27b0",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/performance-review/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/performance-review/dist/index.html",
   },
   {
     id: "0000-0000-0000-0019",
@@ -414,11 +414,11 @@ The Calendar app keeps track of meetings, events, and deadlines. It enables team
 - Calendar views (day, week, month) with color-coded events.
     `,
     categories: ["Productivity", "Scheduling"],
-    author_name: "AllBase",
+    author_name: "Imply",
     icon: BsCalendarFill,
     backgroundColor: "#e91e63",
     index:
-      "https://github.com/tri2820/allbase/blob/main/examples/calendar/dist/index.html",
+      "https://github.com/tri2820/imply/blob/main/examples/calendar/dist/index.html",
   },
 ];
 

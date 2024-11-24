@@ -15,8 +15,8 @@ export default function Layout(props: { children?: JSX.Element }) {
       orientation="vertical"
     >
       <AppBar />
-      <div class="relative h-screen flex-1">
-        <div class="h-full v-main flex flex-col border-l overflow-hidden">
+      <div class="relative h-screen flex-1 p-1.5">
+        <div class="h-full v-main flex flex-col border overflow-hidden rounded-lg">
           {props.children}
         </div>
       </div>

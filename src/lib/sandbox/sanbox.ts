@@ -112,12 +112,8 @@ export class Sandbox {
     // this.modules.set("/src//@vite/client", { source });
     // this.modules.set("http://localhost:5173/@vite/client", { source });
 
-    console.log("KPKP");
-
     const ins = installationOf(this.id);
     if (!ins) throw new Error("No installation found for " + this.id);
-
-    console.log("hello");
 
     const { resolvePath, indexPath } = getResolvePathFunction(ins.meta.index);
     this.resolvePath = resolvePath;
@@ -127,7 +123,7 @@ export class Sandbox {
       __options__: true,
       id: this.id,
       globals: {
-        allbase_dynamic_importport_meta: {
+        imply_dynamic_importport_meta: {
           url: (specifier: string) => {
             const url = new URL(specifier, "http://localhost:5173").toString();
             return url;
@@ -138,7 +134,7 @@ export class Sandbox {
             );
           },
         },
-        allbase_dynamic_import: async (dep: string) => {
+        imply_dynamic_import: async (dep: string) => {
           console.log("start import...", dep);
           const { namespace } = await compartment.import(dep);
 
@@ -147,7 +143,7 @@ export class Sandbox {
             "default"
           )!;
           console.log(
-            "allbase_dynamic_import",
+            "imply_dynamic_import",
             dep,
             namespace,
             descDefault,
@@ -188,7 +184,6 @@ export class Sandbox {
           specifier: importSpecifier,
           compartment: this.compartment,
         };
-
       },
       importNowHook(importSpecifier: string, referrerSpecifier: string) {
         console.log("importNowHook", importSpecifier);

@@ -35,8 +35,8 @@ export default function App() {
       root={(props) => (
         <MetaProvider>
           <div class="Home">
-            <Title>AllBase</Title>
-            <Link rel="canonical" href="http://allbase.app/" />
+            <Title>Imply</Title>
+            <Link rel="canonical" href="http://imply.app/" />
           </div>
 
           {/* <script
