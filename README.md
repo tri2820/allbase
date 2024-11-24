@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="/public/banner.svg"/>
+  <img src="/public/banner.svg" style="width: 100%; height: auto;"/>
 </p>
 
 #
@@ -14,7 +14,7 @@
 <br />
 
 <p align="center">
-  <img src="/public/screenshot.png"/>
+  <img src="/public/screenshot.png" style="width: 100%; height: auto;"/>
 </p>
 
 #
